@@ -29,7 +29,7 @@ public class AD_APR_DentistLeave extends javax.swing.JFrame {
 
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> sorter;
-    // Row index -> real leave_requests.id (the table only shows the
+    // Row index -> real leave_requests.leave_request_id (the table only shows the
     // formatted "LR01" display string, not the raw int).
     private final java.util.List<Integer> rowIds = new java.util.ArrayList<>();
 
@@ -47,7 +47,7 @@ public class AD_APR_DentistLeave extends javax.swing.JFrame {
 
     private void installTabBar() {
         TabBarPanel tabs = new TabBarPanel(
-                new String[]{"Office Staff expenses", "Dentist Leave", "User Login"}, null, 1);
+                new String[]{"Office Staff expenses", "Dentist Leave", "User Login", "Supply Requests"}, null, 1);
         tabs.setBounds(400, 155, tabs.getPreferredSize().width, 40);
         mainPanel.add(tabs);
         tabs.setOnTabClick(idx -> {
@@ -56,6 +56,7 @@ public class AD_APR_DentistLeave extends javax.swing.JFrame {
                 case 0: new AD_APR_OfficeStaff().setVisible(true); break;
                 case 1: new AD_APR_DentistLeave().setVisible(true); break;
                 case 2: new AD_APR_UserLogins().setVisible(true); break;
+                case 3: new AD_APR_SupplyRequest().setVisible(true); break;
                 default: break;
             }
         });
@@ -198,14 +199,14 @@ public class AD_APR_DentistLeave extends javax.swing.JFrame {
         java.util.Map<String, model.DentistModel> directory = controller.DentistManagementController.getDirectory();
         for (model.LeaveRequestModel r : controller.LeaveRequestController.getAll()) {
             model.DentistModel dentist = directory.get(r.getDentistName());
-            String dentistId = dentist != null ? dentist.getDoctorId() : "-";
+            String dentistId = dentist != null ? dentist.getDentistId() : "-";
             String availability = availabilityFor(r.getDentistName(), r.getLeaveDate());
 
             tableModel.addRow(new Object[]{
-                "LR" + String.format("%02d", r.getId()), dash(dentistId), dash(r.getDentistName()),
+                "LR" + String.format("%02d", r.getLeaveRequestId()), dash(dentistId), dash(r.getDentistName()),
                 dash(r.getLeaveDate()), availability, dash(r.getStatus()), ""
             });
-            rowIds.add(r.getId());
+            rowIds.add(r.getLeaveRequestId());
         }
     }
 
