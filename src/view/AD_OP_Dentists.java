@@ -132,7 +132,7 @@ public class AD_OP_Dentists extends javax.swing.JFrame {
         tableModel.setRowCount(0);
         for (model.DentistModel d : controller.DentistManagementController.getDirectory().values()) {
             tableModel.addRow(new Object[]{
-                dash(d.getDoctorId()), dash(d.getFullName()), dash(d.getSlmcNo()), dash(d.getMobileNo()),
+                dash(d.getDentistId()), dash(d.getFullName()), dash(d.getSlmcNo()), dash(d.getMobileNo()),
                 dash(d.getEmail()), formatFee(d.getConsultationFee()), dash(d.getEmploymentType()), d.getLicenseStatus()
             });
         }
