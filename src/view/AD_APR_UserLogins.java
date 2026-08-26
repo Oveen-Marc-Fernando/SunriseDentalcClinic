@@ -13,10 +13,14 @@ import javax.swing.table.TableRowSorter;
 
 /**
  * Administration &gt; Approvals &gt; User Login — the Administration-only
- * approve/decline screen for new self-registered accounts (see Register.java
- * / RegisterController, which always starts a new signup PENDING). An
- * account can't log in (LoginForm/UserDAO#authenticate) until it's Approved
- * here.
+ * approve/decline screen for pending accounts. Two kinds show up here: a
+ * self-registered account (Register.java / RegisterController, which always
+ * starts a new signup PENDING) and an Office-Staff-created dentist login
+ * request (Dentist Management's "Create Login" / final wizard step, which
+ * now also starts PENDING instead of going straight to Approved — see
+ * UserApprovalController#approve for how the two are told apart and handled
+ * differently on approval). An account can't log in
+ * (LoginForm/UserDAO#authenticate) until it's Approved here.
  *
  * @author oveen
  */
