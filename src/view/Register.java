@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JOptionPane;
 
 /**
  * Register Form - borderless, draggable registration modal.
@@ -24,7 +23,11 @@ public class Register extends javax.swing.JFrame {
 
     private final javax.swing.JFrame parentFrame;
 
-    private String selectedRole = "Office Staff";
+    // Office Staff accounts aren't self-registerable from the public site —
+    // an Administrator creates those directly, same as an office would issue
+    // a work login rather than have staff sign themselves up. Only Patient
+    // and Dentist remain here.
+    private String selectedRole = "Patient";
     private boolean passVisible = false;
     private boolean confirmPassVisible = false;
 
@@ -41,7 +44,7 @@ public class Register extends javax.swing.JFrame {
 
         setUndecorated(true);
         initComponents();
-        setSize(550, 560);
+        setSize(550, 605);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         lblErrorMsg.setText(""); // Initially clear error message
@@ -114,7 +117,6 @@ public class Register extends javax.swing.JFrame {
     private void setupCursors() {
         Cursor hand = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
         lblCloseBtn.setCursor(hand);
-        btnRoleStaff.setCursor(hand);
         btnRolePatient.setCursor(hand);
         btnRoleDentist.setCursor(hand);
         btnSaveDetails.setCursor(hand);
@@ -123,9 +125,6 @@ public class Register extends javax.swing.JFrame {
     }
 
     private void updateRoleButtons() {
-        btnRoleStaff.setBackground(selectedRole.equals("Office Staff") ? COLOR_PRIMARY_ORANGE : COLOR_INACTIVE_BG);
-        btnRoleStaff.setForeground(selectedRole.equals("Office Staff") ? Color.WHITE : COLOR_INACTIVE_TEXT);
-
         btnRolePatient.setBackground(selectedRole.equals("Patient") ? COLOR_PRIMARY_ORANGE : COLOR_INACTIVE_BG);
         btnRolePatient.setForeground(selectedRole.equals("Patient") ? Color.WHITE : COLOR_INACTIVE_TEXT);
 
@@ -139,7 +138,6 @@ public class Register extends javax.swing.JFrame {
         panel = new javax.swing.JPanel();
         lblCloseBtn = new javax.swing.JLabel();
         lblTitle = new javax.swing.JLabel();
-        btnRoleStaff = new javax.swing.JButton();
         btnRolePatient = new javax.swing.JButton();
         btnRoleDentist = new javax.swing.JButton();
         lblFullName = new javax.swing.JLabel();
@@ -148,6 +146,8 @@ public class Register extends javax.swing.JFrame {
         txtNic = new javax.swing.JTextField();
         lblContactNumber = new javax.swing.JLabel();
         txtContactNumber = new javax.swing.JTextField();
+        lblEmail = new javax.swing.JLabel();
+        txtEmail = new javax.swing.JTextField();
         lblUsername = new javax.swing.JLabel();
         txtUsername = new javax.swing.JTextField();
         lblPassword = new javax.swing.JLabel();
@@ -184,24 +184,10 @@ public class Register extends javax.swing.JFrame {
         panel.add(lblTitle);
         lblTitle.setBounds(0, 20, 550, 40);
 
-        btnRoleStaff.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
-        btnRoleStaff.setText("Office Staff");
-        btnRoleStaff.setBackground(new java.awt.Color(231, 115, 36));
-        btnRoleStaff.setForeground(new java.awt.Color(255, 255, 255));
-        btnRoleStaff.setBorderPainted(false);
-        btnRoleStaff.setFocusPainted(false);
-        btnRoleStaff.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRoleStaffActionPerformed(evt);
-            }
-        });
-        panel.add(btnRoleStaff);
-        btnRoleStaff.setBounds(130, 80, 105, 34);
-
         btnRolePatient.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnRolePatient.setText("Patient");
-        btnRolePatient.setBackground(new java.awt.Color(234, 234, 234));
-        btnRolePatient.setForeground(new java.awt.Color(51, 51, 51));
+        btnRolePatient.setBackground(new java.awt.Color(231, 115, 36));
+        btnRolePatient.setForeground(new java.awt.Color(255, 255, 255));
         btnRolePatient.setBorderPainted(false);
         btnRolePatient.setFocusPainted(false);
         btnRolePatient.addActionListener(new java.awt.event.ActionListener() {
@@ -210,7 +196,7 @@ public class Register extends javax.swing.JFrame {
             }
         });
         panel.add(btnRolePatient);
-        btnRolePatient.setBounds(240, 80, 95, 34);
+        btnRolePatient.setBounds(155, 80, 115, 34);
 
         btnRoleDentist.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnRoleDentist.setText("Dentist");
@@ -224,7 +210,7 @@ public class Register extends javax.swing.JFrame {
             }
         });
         panel.add(btnRoleDentist);
-        btnRoleDentist.setBounds(340, 80, 95, 34);
+        btnRoleDentist.setBounds(280, 80, 115, 34);
 
         lblFullName.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblFullName.setText("Full Name:");
@@ -256,25 +242,35 @@ public class Register extends javax.swing.JFrame {
         panel.add(txtContactNumber);
         txtContactNumber.setBounds(220, 228, 240, 32);
 
+        lblEmail.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblEmail.setText("Email:");
+        panel.add(lblEmail);
+        lblEmail.setBounds(90, 275, 130, 30);
+
+        txtEmail.setBackground(new java.awt.Color(242, 242, 242));
+        txtEmail.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        panel.add(txtEmail);
+        txtEmail.setBounds(220, 273, 240, 32);
+
         lblUsername.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblUsername.setText("CreateUsername:");
         panel.add(lblUsername);
-        lblUsername.setBounds(90, 275, 130, 30);
+        lblUsername.setBounds(90, 320, 130, 30);
 
         txtUsername.setBackground(new java.awt.Color(242, 242, 242));
         txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         panel.add(txtUsername);
-        txtUsername.setBounds(220, 273, 240, 32);
+        txtUsername.setBounds(220, 318, 240, 32);
 
         lblPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblPassword.setText("Create Password:");
         panel.add(lblPassword);
-        lblPassword.setBounds(90, 320, 130, 30);
+        lblPassword.setBounds(90, 365, 130, 30);
 
         txtPassword.setBackground(new java.awt.Color(242, 242, 242));
         txtPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         panel.add(txtPassword);
-        txtPassword.setBounds(220, 318, 200, 32);
+        txtPassword.setBounds(220, 363, 200, 32);
 
         btnShowHidePass.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
         btnShowHidePass.setText("Show");
@@ -287,17 +283,17 @@ public class Register extends javax.swing.JFrame {
             }
         });
         panel.add(btnShowHidePass);
-        btnShowHidePass.setBounds(425, 318, 35, 32);
+        btnShowHidePass.setBounds(425, 363, 35, 32);
 
         lblConfirmPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblConfirmPassword.setText("Confirm Password:");
         panel.add(lblConfirmPassword);
-        lblConfirmPassword.setBounds(90, 365, 130, 30);
+        lblConfirmPassword.setBounds(90, 410, 130, 30);
 
         txtConfirmPassword.setBackground(new java.awt.Color(242, 242, 242));
         txtConfirmPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         panel.add(txtConfirmPassword);
-        txtConfirmPassword.setBounds(220, 363, 200, 32);
+        txtConfirmPassword.setBounds(220, 408, 200, 32);
 
         btnShowHideConfirm.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
         btnShowHideConfirm.setText("Show");
@@ -310,14 +306,14 @@ public class Register extends javax.swing.JFrame {
             }
         });
         panel.add(btnShowHideConfirm);
-        btnShowHideConfirm.setBounds(425, 363, 35, 32);
+        btnShowHideConfirm.setBounds(425, 408, 35, 32);
 
         lblErrorMsg.setFont(new java.awt.Font("Segoe UI", 2, 12)); // NOI18N
         lblErrorMsg.setForeground(new java.awt.Color(255, 59, 48));
         lblErrorMsg.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblErrorMsg.setText("This Nic already has a login!!!");
         panel.add(lblErrorMsg);
-        lblErrorMsg.setBounds(0, 415, 550, 25);
+        lblErrorMsg.setBounds(0, 460, 550, 25);
 
         btnSaveDetails.setFont(new java.awt.Font("Segoe UI", 1, 15)); // NOI18N
         btnSaveDetails.setText("Save Details!");
@@ -331,18 +327,13 @@ public class Register extends javax.swing.JFrame {
             }
         });
         panel.add(btnSaveDetails);
-        btnSaveDetails.setBounds(180, 455, 190, 44);
+        btnSaveDetails.setBounds(180, 500, 190, 44);
 
         getContentPane().add(panel);
-        panel.setBounds(0, 0, 560, 590);
+        panel.setBounds(0, 0, 560, 635);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnRoleStaffActionPerformed(java.awt.event.ActionEvent evt) {
-        selectedRole = "Office Staff";
-        updateRoleButtons();
-    }
 
     private void btnRolePatientActionPerformed(java.awt.event.ActionEvent evt) {
         selectedRole = "Patient";
@@ -390,12 +381,18 @@ public class Register extends javax.swing.JFrame {
         String fullName = txtFullName.getText().trim();
         String nic      = txtNic.getText().trim();
         String contact  = txtContactNumber.getText().trim();
+        String email    = txtEmail.getText().trim();
         String username = txtUsername.getText().trim();
         String pass     = String.valueOf(txtPassword.getPassword());
         String confirm  = String.valueOf(txtConfirmPassword.getPassword());
 
-        if (fullName.isEmpty() || nic.isEmpty() || contact.isEmpty() || username.isEmpty() || pass.isEmpty()) {
+        if (fullName.isEmpty() || nic.isEmpty() || contact.isEmpty() || email.isEmpty() || username.isEmpty() || pass.isEmpty()) {
             lblErrorMsg.setText("Please fill in all registration fields.");
+            return;
+        }
+        if (!email.contains("@") || !email.contains(".")) {
+            lblErrorMsg.setText("That doesn't look like a valid email address.");
+            txtEmail.requestFocusInWindow();
             return;
         }
 
@@ -412,17 +409,38 @@ public class Register extends javax.swing.JFrame {
             return;
         }
 
-        lblErrorMsg.setText("");
-        JOptionPane.showMessageDialog(this,
-                "Registration successful for " + selectedRole + ": " + fullName,
-                "Registration Success", JOptionPane.INFORMATION_MESSAGE);
+        controller.RegisterController.RegisterOutcome outcome =
+                controller.RegisterController.register(username, pass, fullName, email, nic, contact, selectedRole);
 
-        for (java.awt.event.WindowListener wl : getWindowListeners()) {
-            removeWindowListener(wl);
+        if (outcome == controller.RegisterController.RegisterOutcome.USERNAME_TAKEN) {
+            lblErrorMsg.setText("That username is already taken.");
+            txtUsername.requestFocusInWindow();
+            return;
         }
-        dispose();
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            new LoginForm(parentFrame).setVisible(true);
+        if (outcome == controller.RegisterController.RegisterOutcome.FAILED) {
+            lblErrorMsg.setText("Couldn't register — the database may be unreachable. Try again.");
+            return;
+        }
+
+        lblErrorMsg.setText("");
+        // Patient accounts are auto-approved (no admin review needed) —
+        // only Dentist still waits on AD_APR_UserLogins. Both also get an
+        // email confirming this (RegisterController.sendConfirmationEmail).
+        boolean autoApproved = "Patient".equals(selectedRole);
+        String message = autoApproved
+                ? "Welcome, " + fullName + "! Your account is ready — you can log in right away.\n\n"
+                        + "A confirmation email has also been sent to " + email + "."
+                : "Registration submitted for " + selectedRole + ": " + fullName + "!\n\n"
+                        + "Your account is now pending Administrator approval — you'll be able to log in "
+                        + "once it's approved, and we've sent a confirmation email to " + email + ".";
+        IconFactory.showSuccessDialog(this, message, () -> {
+            for (java.awt.event.WindowListener wl : getWindowListeners()) {
+                removeWindowListener(wl);
+            }
+            dispose();
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                new LoginForm(parentFrame).setVisible(true);
+            });
         });
     }
 
@@ -437,13 +455,13 @@ public class Register extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnRoleDentist;
     private javax.swing.JButton btnRolePatient;
-    private javax.swing.JButton btnRoleStaff;
     private javax.swing.JButton btnSaveDetails;
     private javax.swing.JButton btnShowHideConfirm;
     private javax.swing.JButton btnShowHidePass;
     private javax.swing.JLabel lblCloseBtn;
     private javax.swing.JLabel lblConfirmPassword;
     private javax.swing.JLabel lblContactNumber;
+    private javax.swing.JLabel lblEmail;
     private javax.swing.JLabel lblErrorMsg;
     private javax.swing.JLabel lblFullName;
     private javax.swing.JLabel lblNic;
@@ -453,6 +471,7 @@ public class Register extends javax.swing.JFrame {
     private javax.swing.JPanel panel;
     private javax.swing.JPasswordField txtConfirmPassword;
     private javax.swing.JTextField txtContactNumber;
+    private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtFullName;
     private javax.swing.JTextField txtNic;
     private javax.swing.JPasswordField txtPassword;
