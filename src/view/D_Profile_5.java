@@ -17,6 +17,7 @@ public class D_Profile_5 extends javax.swing.JFrame {
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
         DateTimePicker.attachTime(txtStartTime);
         DateTimePicker.attachTime(txtEndTime);
+        WeekdayPicker.attach(txtWorkingDays); // same tick-box picker as OS_DM_5 (Office Staff's Dentist Management)
         prefillFromModel();
         setSize(1016, 739);
         setLocationRelativeTo(null);
@@ -171,7 +172,7 @@ public class D_Profile_5 extends javax.swing.JFrame {
         txtEndTime.setBounds(60, 330, 350, 35);
 
         lblBreakTime.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblBreakTime.setText("Break Time");
+        lblBreakTime.setText("Break Duration (mins)");
         cardPanel.add(lblBreakTime);
         lblBreakTime.setBounds(60, 380, 150, 25);
 
