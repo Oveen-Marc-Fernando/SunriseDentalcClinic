@@ -2,6 +2,7 @@ package view;
 
 import controller.AppController;
 import controller.OfficeStaffController;
+import controller.ProfileSaveResult;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
@@ -99,7 +100,19 @@ public class OfficeStaff_Dashboard extends javax.swing.JFrame {
                         () -> {
                             controller.editProfile();
                             IconFactory.showEditProfileDialog(OfficeStaff_Dashboard.this, controller.getUsername(),
-                                    newPassword -> controller.saveProfileChanges(newPassword));
+                                    (newUsername, newPassword) -> {
+                                        ProfileSaveResult result = controller.saveProfileChanges(newUsername, newPassword);
+                                        if (!result.anythingChanged() && result.isFullSuccess()) {
+                                            return;
+                                        }
+                                        if (result.isFullSuccess()) {
+                                            IconFactory.showSuccessDialog(OfficeStaff_Dashboard.this,
+                                                    result.summarize(), null);
+                                        } else {
+                                            javax.swing.JOptionPane.showMessageDialog(OfficeStaff_Dashboard.this,
+                                                    result.summarize(), "Update Failed", javax.swing.JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    });
                         },
                         () -> {
                             controller.logout();
