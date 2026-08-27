@@ -23,10 +23,32 @@ public class D_Profile_1 extends javax.swing.JFrame {
         lblLogo.setIcon(IconFactory.brandLogo(130, 40)); // crisp vector wordmark (fixes blurry 130x40 raster logo at HiDPI)
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
         DateTimePicker.attachDate(txtDOB);
-        FilePicker.attachImageUpload(txtPortalPN);
+        setupDentistId();
+        setupUsername();
         prefillFromModel();
         setSize(1016, 739);
         setLocationRelativeTo(null);
+    }
+
+    /** Dentist ID is auto-generated and locked — same read-only convention as Patient ID elsewhere in this app. */
+    private void setupDentistId() {
+        txtDentistId.setEditable(false);
+        txtDentistId.setBackground(new java.awt.Color(235, 235, 235));
+    }
+
+    /**
+     * Username is locked — only Office Staff sets/changes it (Dentist
+     * Management), same reasoning as the temp-password flow: a dentist's own
+     * login identity shouldn't drift out from under whoever manages accounts.
+     * Shown here purely as read-only reference to what to log in with.
+     */
+    private void setupUsername() {
+        txtUsername.setEditable(false);
+        txtUsername.setBackground(new java.awt.Color(235, 235, 235));
+        model.User user = controller.getCurrentUser();
+        if (user != null && user.getUsername() != null) {
+            txtUsername.setText(user.getUsername());
+        }
     }
 
     private void prefillFromModel() {
@@ -38,10 +60,9 @@ public class D_Profile_1 extends javax.swing.JFrame {
         if ("Male".equals(m.getGender()))   chkMale.setSelected(true);
         if ("Female".equals(m.getGender())) chkFemale.setSelected(true);
         if (m.getFullName() != null) txtFullName.setText(m.getFullName());
-        if (m.getDoctorId() != null) txtDoctorId.setText(m.getDoctorId());
+        if (m.getDentistId() != null) txtDentistId.setText(m.getDentistId());
         if (m.getDob() != null)      txtDOB.setText(m.getDob());
         if (m.getNic() != null)      txtNIC.setText(m.getNic());
-        if (m.getPortalPN() != null) txtPortalPN.setText(m.getPortalPN());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -68,14 +89,14 @@ public class D_Profile_1 extends javax.swing.JFrame {
         chkFemale = new javax.swing.JCheckBox();
         lblFullName = new javax.swing.JLabel();
         txtFullName = new javax.swing.JTextField();
-        lblDoctorId = new javax.swing.JLabel();
-        txtDoctorId = new javax.swing.JTextField();
+        lblDentistId = new javax.swing.JLabel();
+        txtDentistId = new javax.swing.JTextField();
         lblDOB = new javax.swing.JLabel();
         txtDOB = new javax.swing.JTextField();
         lblNIC = new javax.swing.JLabel();
         txtNIC = new javax.swing.JTextField();
-        lblPortalPN = new javax.swing.JLabel();
-        txtPortalPN = new javax.swing.JTextField();
+        lblUsername = new javax.swing.JLabel();
+        txtUsername = new javax.swing.JTextField();
         btnBack = new javax.swing.JButton();
         btnNext = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
@@ -201,14 +222,14 @@ public class D_Profile_1 extends javax.swing.JFrame {
         cardPanel.add(txtFullName);
         txtFullName.setBounds(60, 250, 350, 35);
 
-        lblDoctorId.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblDoctorId.setText("Doctor ID");
-        cardPanel.add(lblDoctorId);
-        lblDoctorId.setBounds(60, 300, 100, 25);
+        lblDentistId.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblDentistId.setText("Dentist ID");
+        cardPanel.add(lblDentistId);
+        lblDentistId.setBounds(60, 300, 100, 25);
 
-        txtDoctorId.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        cardPanel.add(txtDoctorId);
-        txtDoctorId.setBounds(60, 330, 350, 35);
+        txtDentistId.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        cardPanel.add(txtDentistId);
+        txtDentistId.setBounds(60, 330, 350, 35);
 
         lblDOB.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         lblDOB.setText("DOB");
@@ -228,14 +249,14 @@ public class D_Profile_1 extends javax.swing.JFrame {
         cardPanel.add(txtNIC);
         txtNIC.setBounds(490, 250, 350, 35);
 
-        lblPortalPN.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblPortalPN.setText("Profile Pic");
-        cardPanel.add(lblPortalPN);
-        lblPortalPN.setBounds(490, 300, 140, 25);
+        lblUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblUsername.setText("Username");
+        cardPanel.add(lblUsername);
+        lblUsername.setBounds(490, 300, 140, 25);
 
-        txtPortalPN.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        cardPanel.add(txtPortalPN);
-        txtPortalPN.setBounds(490, 330, 350, 35);
+        txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        cardPanel.add(txtUsername);
+        txtUsername.setBounds(490, 330, 350, 35);
 
         btnBack.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBack.setText("Back");
@@ -301,10 +322,9 @@ public class D_Profile_1 extends javax.swing.JFrame {
                 title,
                 gender,
                 txtFullName.getText(),
-                txtDoctorId.getText(),
+                txtDentistId.getText(),
                 txtDOB.getText(),
                 txtNIC.getText(),
-                txtPortalPN.getText(),
                 this
         );
     }//GEN-LAST:event_btnNextActionPerformed
@@ -318,10 +338,9 @@ public class D_Profile_1 extends javax.swing.JFrame {
                 title,
                 gender,
                 txtFullName.getText(),
-                txtDoctorId.getText(),
+                txtDentistId.getText(),
                 txtDOB.getText(),
                 txtNIC.getText(),
-                txtPortalPN.getText(),
                 this
         );
     }//GEN-LAST:event_btnUpdateActionPerformed
@@ -345,12 +364,11 @@ public class D_Profile_1 extends javax.swing.JFrame {
     private javax.swing.JCheckBox chkMr;
     private javax.swing.JCheckBox chkMrs;
     private javax.swing.JLabel lblDOB;
-    private javax.swing.JLabel lblDoctorId;
+    private javax.swing.JLabel lblDentistId;
     private javax.swing.JLabel lblFullName;
     private javax.swing.JLabel lblGender;
     private javax.swing.JLabel lblLogo;
     private javax.swing.JLabel lblNIC;
-    private javax.swing.JLabel lblPortalPN;
     private javax.swing.JLabel lblStep1;
     private javax.swing.JLabel lblStep2;
     private javax.swing.JLabel lblStep3;
@@ -359,13 +377,14 @@ public class D_Profile_1 extends javax.swing.JFrame {
     private javax.swing.JLabel lblSubtitle;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblTitlePrefix;
+    private javax.swing.JLabel lblUsername;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel navBar;
     private javax.swing.JSeparator sepLine;
     private javax.swing.JTextField txtDOB;
-    private javax.swing.JTextField txtDoctorId;
+    private javax.swing.JTextField txtDentistId;
     private javax.swing.JTextField txtFullName;
     private javax.swing.JTextField txtNIC;
-    private javax.swing.JTextField txtPortalPN;
+    private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }
