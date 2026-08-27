@@ -44,10 +44,33 @@ public class D_RS_Leave extends javax.swing.JFrame {
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
         bindUserIcon();
         prefillFromProfile();
-        DateTimePicker.attachDate(txtLeaveDate);
-        setupEligibilityCheck();
+        if (LeaveRequestController.hasPendingRequest(dentistName)) {
+            blockForPendingRequest();
+        } else {
+            DateTimePicker.attachDate(txtLeaveDate);
+            setupEligibilityCheck();
+        }
         setSize(1016, 739);
         setLocationRelativeTo(null);
+    }
+
+    /**
+     * Only one leave request can be Pending at a time — this dentist already
+     * has one sitting in AD_APR_DentistLeave's queue, so "Check For Leave"
+     * never gets its date-picker icon (nothing to click) and both buttons
+     * stay disabled until an Administrator approves or rejects it.
+     */
+    private void blockForPendingRequest() {
+        lockField(txtLeaveDate);
+        txtLeaveDate.setText("Pending approval — see below");
+        btnRequest.setEnabled(false);
+        btnRequest.setText("Check Availability");
+        btnRequest.setBackground(COLOR_NEUTRAL);
+        btnRequest1.setEnabled(false);
+        lblWarning.setForeground(COLOR_CANNOT_APPLY);
+        lblWarning.setText("<html><b>You already have a leave request pending approval.</b> "
+                + "Only one request at a time is allowed — once an Administrator approves or "
+                + "rejects it, you'll be able to request another.</html>");
     }
 
     /**
