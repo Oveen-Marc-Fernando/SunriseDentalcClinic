@@ -43,8 +43,15 @@ public class D_RS_Grid extends javax.swing.JFrame {
 
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> sorter;
+    private final model.User user;
 
+    /** Backward-compatible no-arg entry point (e.g. {@code main()}) — Add Request/History open with no dentist context. */
     public D_RS_Grid() {
+        this((model.User) null);
+    }
+
+    public D_RS_Grid(model.User user) {
+        this.user = user;
         initComponents();
         lblLogo.setIcon(IconFactory.brandLogo(130, 40)); // crisp vector wordmark (fixes blurry 130x40 raster logo at HiDPI)
         lblUserIcon.setIcon(IconFactory.userGlyph(Color.WHITE, 26)); // crisp vector glyph, no backdrop — sits directly on the black pill
@@ -65,7 +72,7 @@ public class D_RS_Grid extends javax.swing.JFrame {
                 IconFactory.showProfileMenu(D_RS_Grid.this, lblUserIcon,
                         () -> javax.swing.SwingUtilities.invokeLater(() -> {
                             dispose();
-                            new D_Profile_1((model.User) null).setVisible(true);
+                            new D_Profile_1(user).setVisible(true);
                         }),
                         () -> {
                             dispose();
@@ -358,14 +365,14 @@ public class D_RS_Grid extends javax.swing.JFrame {
     private void btnAddRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddRequestActionPerformed
         dispose();
         javax.swing.SwingUtilities.invokeLater(() -> {
-            new D_RS_Add().setVisible(true);
+            new D_RS_Add(user).setVisible(true);
         });
     }//GEN-LAST:event_btnAddRequestActionPerformed
 
     private void btnRequestHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRequestHistoryActionPerformed
         dispose();
         javax.swing.SwingUtilities.invokeLater(() -> {
-            new D_RS_History().setVisible(true);
+            new D_RS_History(user).setVisible(true);
         });
     }//GEN-LAST:event_btnRequestHistoryActionPerformed
 
