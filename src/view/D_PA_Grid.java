@@ -14,7 +14,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 /**
- * "My Patients" — the patients currently under this dentist's care.
+ * "My Patients" — the patients currently under this dentist's care, i.e.
+ * anyone who's ever had an appointment with them (derived from the real
+ * "appointments" table — there's no direct dentist-to-patient link, same
+ * gap as the login-to-patient-record one noted elsewhere in this app).
  * Reached from the Dentist Dashboard's "My Patients" tile.
  */
 public class D_PA_Grid extends javax.swing.JFrame {
@@ -24,8 +27,15 @@ public class D_PA_Grid extends javax.swing.JFrame {
 
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> sorter;
+    private final String dentistName;
 
+    /** Backward-compatible no-arg entry point (e.g. {@code main()}) — shows no rows without a logged-in dentist. */
     public D_PA_Grid() {
+        this(null);
+    }
+
+    public D_PA_Grid(model.User user) {
+        this.dentistName = (user != null && user.getFullName() != null) ? user.getFullName() : null;
         initComponents();
         lblLogo.setIcon(IconFactory.brandLogo(130, 40)); // crisp vector wordmark (fixes blurry 130x40 raster logo at HiDPI)
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
@@ -93,16 +103,35 @@ public class D_PA_Grid extends javax.swing.JFrame {
     }
 
     // Backed by the same "patients" table OS_PM_Grid reads (db/schema.sql),
-    // via PatientManagementController — this view just projects a more
-    // clinical set of columns (dental problems / allergies) from the same rows.
+    // via PatientManagementController — this view projects a more clinical
+    // set of columns (dental problems / allergies) from the same rows, and
+    // — unlike OS_PM_Grid's full list — only the distinct patients this
+    // dentist has actually had an appointment with (derived from the real
+    // "appointments" table, since patients aren't directly linked to a dentist).
 
-    public static int getRecordCount() {
-        return controller.PatientManagementController.count();
+    /** Distinct patient names who've had an appointment with the given dentist. */
+    private static java.util.List<String> patientNamesFor(String dentistName) {
+        java.util.LinkedHashSet<String> names = new java.util.LinkedHashSet<>();
+        for (model.AppointmentModel a : controller.AppointmentManagementController.getForDentist(dentistName)) {
+            if (a.getPatientName() != null && !a.getPatientName().trim().isEmpty()) {
+                names.add(a.getPatientName().trim());
+            }
+        }
+        return new java.util.ArrayList<>(names);
+    }
+
+    public static int getRecordCount(String dentistName) {
+        return dentistName == null ? 0 : patientNamesFor(dentistName).size();
     }
 
     private void populateSampleData() {
         tableModel.setRowCount(0);
-        for (model.PatientModel p : controller.PatientManagementController.getAll()) {
+        if (dentistName == null) {
+            return; // no logged-in dentist context (e.g. main()) — nothing to show
+        }
+        for (String name : patientNamesFor(dentistName)) {
+            model.PatientModel p = controller.PatientManagementController.findByFullName(name);
+            if (p == null) continue; // an appointment's free-text name that never matched a real patient record
             tableModel.addRow(new Object[]{
                 p.getPatientId(), p.getFullName(), p.getLastDentalVisit(), p.getDentalProblems(), p.getAllergies()
             });
