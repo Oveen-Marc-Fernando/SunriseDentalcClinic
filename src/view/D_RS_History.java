@@ -25,11 +25,19 @@ public class D_RS_History extends javax.swing.JFrame {
 
     private static final java.awt.Font FONT_DEFAULT = new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13);
     private static final Color COLOR_STRIPE = new Color(240, 240, 240);
+    private static final int STATUS_COLUMN = 5;
 
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> sorter;
+    private final model.User user;
 
+    /** Backward-compatible no-arg entry point (e.g. {@code main()}) — shows no rows without a logged-in dentist. */
     public D_RS_History() {
+        this((model.User) null);
+    }
+
+    public D_RS_History(model.User user) {
+        this.user = user;
         initComponents();
         lblLogo.setIcon(IconFactory.brandLogo(130, 40)); // crisp vector wordmark (fixes blurry 130x40 raster logo at HiDPI)
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
@@ -49,6 +57,21 @@ public class D_RS_History extends javax.swing.JFrame {
                 c.setBackground(row % 2 == 0 ? Color.WHITE : COLOR_STRIPE);
             }
             return c;
+        }
+    }
+
+    /** Renders the Status column as a colored pill (green "Approved", amber "Pending", red "Rejected"). */
+    private class StatusPillRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(javax.swing.JTable t, Object v,
+                boolean sel, boolean foc, int row, int col) {
+            javax.swing.JPanel panel = new javax.swing.JPanel(null);
+            panel.setBackground(row % 2 == 0 ? Color.WHITE : COLOR_STRIPE);
+            String status = v == null ? "" : v.toString();
+            javax.swing.JLabel pill = IconFactory.statusPill(status);
+            pill.setBounds(14, 3, 100, 28);
+            panel.add(pill);
+            return panel;
         }
     }
 
@@ -89,15 +112,19 @@ public class D_RS_History extends javax.swing.JFrame {
         tblHistory.getTableHeader().setReorderingAllowed(false);
 
         tblHistory.setDefaultRenderer(Object.class, new AlternatingRowRenderer());
+        tblHistory.getColumnModel().getColumn(STATUS_COLUMN).setCellRenderer(new StatusPillRenderer());
         txtSearch.getDocument().addDocumentListener(new SearchDocumentListener());
     }
 
-    /** Loads every request from the shared controller into the table, projecting just the log columns. */
+    /** Loads this dentist's own requests from the shared controller, projecting just the log columns. */
     private void populateData() {
         tableModel.setRowCount(0);
-        for (SupplyRequestModel r : SupplyRequestController.getAll()) {
+        if (user == null || user.getFullName() == null) {
+            return; // no logged-in dentist context (e.g. main()) — nothing to show
+        }
+        for (SupplyRequestModel r : SupplyRequestController.getForDentist(user.getFullName())) {
             tableModel.addRow(new Object[]{
-                r.getTrackingId(), r.getProductId(), r.getProductType(), r.getProductName(), r.getQuantity()
+                r.getTrackingId(), r.getProductId(), r.getProductType(), r.getProductName(), r.getQuantity(), r.getStatus()
             });
         }
     }
@@ -181,11 +208,11 @@ public class D_RS_History extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Request ID", "Product ID", "Product Type", "Product Name", "Quantity"
+                "Request ID", "Product ID", "Product Type", "Product Name", "Quantity", "Status"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -196,11 +223,12 @@ public class D_RS_History extends javax.swing.JFrame {
         tblHistory.setShowGrid(false);
         scrollPane.setViewportView(tblHistory);
         if (tblHistory.getColumnModel().getColumnCount() > 0) {
-            tblHistory.getColumnModel().getColumn(0).setPreferredWidth(150);
-            tblHistory.getColumnModel().getColumn(1).setPreferredWidth(150);
-            tblHistory.getColumnModel().getColumn(2).setPreferredWidth(180);
-            tblHistory.getColumnModel().getColumn(3).setPreferredWidth(250);
-            tblHistory.getColumnModel().getColumn(4).setPreferredWidth(130);
+            tblHistory.getColumnModel().getColumn(0).setPreferredWidth(130);
+            tblHistory.getColumnModel().getColumn(1).setPreferredWidth(120);
+            tblHistory.getColumnModel().getColumn(2).setPreferredWidth(150);
+            tblHistory.getColumnModel().getColumn(3).setPreferredWidth(200);
+            tblHistory.getColumnModel().getColumn(4).setPreferredWidth(100);
+            tblHistory.getColumnModel().getColumn(5).setPreferredWidth(110);
         }
 
         pnlTableWrap.add(scrollPane);
@@ -218,7 +246,7 @@ public class D_RS_History extends javax.swing.JFrame {
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         dispose();
         javax.swing.SwingUtilities.invokeLater(() -> {
-            new D_RS_Grid().setVisible(true);
+            new D_RS_Grid(user).setVisible(true);
         });
     }//GEN-LAST:event_btnBackActionPerformed
 
