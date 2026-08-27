@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
@@ -117,25 +116,104 @@ public class OS_IM_Grid extends javax.swing.JFrame {
             java.awt.Rectangle cellRect = tblInventory.getCellRect(row, col, false);
             int xInCell = e.getX() - cellRect.x;
 
+            String productId = String.valueOf(tableModel.getValueAt(modelRow, 0));
             if (xInCell < 48) { // Edit button
-                JOptionPane.showMessageDialog(OS_IM_Grid.this,
-                        "Edit Product: " + productName, "Edit Product",
-                        JOptionPane.INFORMATION_MESSAGE);
+                handleEditProduct(productId, modelRow);
             } else { // Delete button
-                int confirmed = JOptionPane.showConfirmDialog(OS_IM_Grid.this,
-                        "Delete product: " + productName + "?", "Delete Product",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (confirmed == JOptionPane.YES_OPTION) {
-                    String productId = String.valueOf(tableModel.getValueAt(modelRow, 0));
+                IconFactory.showConfirmDialog(OS_IM_Grid.this, "Delete product: " + productName + "?", "Delete", () -> {
                     if (controller.InventoryManagementController.delete(productId)) {
                         tableModel.removeRow(modelRow);
                     } else {
-                        JOptionPane.showMessageDialog(OS_IM_Grid.this,
-                                "Couldn't delete " + productName + " from the database.",
-                                "Delete Failed", JOptionPane.ERROR_MESSAGE);
+                        IconFactory.showErrorDialog(OS_IM_Grid.this,
+                                "Couldn't delete " + productName + " from the database.", null);
                     }
-                }
+                });
             }
+        }
+
+        /**
+         * A scrollable Edit popup over the full InventoryModel field set —
+         * Product Information + Supplier Information, matching the 2-step
+         * Add wizard (OS_IM_1/OS_IM_2). Product ID stays locked since it's
+         * the upsert key.
+         */
+        private void handleEditProduct(String productId, int modelRow) {
+            model.InventoryModel item = controller.InventoryManagementController.getAll().stream()
+                    .filter(x -> productId.equals(x.getProductId()))
+                    .findFirst()
+                    .orElse(null);
+            if (item == null) {
+                IconFactory.showErrorDialog(OS_IM_Grid.this,
+                        "Couldn't find that product anymore — try refreshing the grid.", null);
+                return;
+            }
+
+            final int x = 20, w = IconFactory.FORM_DIALOG_CONTENT_WIDTH;
+            JPanel content = new JPanel(null);
+            int y = 10;
+
+            y = IconFactory.addFormSectionHeader(content, "Product Information", x, y, w);
+            javax.swing.JTextField txtProductId = new javax.swing.JTextField(dash(item.getProductId()));
+            txtProductId.setEditable(false);
+            y = IconFactory.addFormField(content, "Product ID:", txtProductId, x, y, w);
+            javax.swing.JTextField txtProductName = new javax.swing.JTextField(dash(item.getProductName()));
+            y = IconFactory.addFormField(content, "Product Name:", txtProductName, x, y, w);
+            javax.swing.JTextField txtProductType = new javax.swing.JTextField(dash(item.getProductType()));
+            y = IconFactory.addFormField(content, "Product Type:", txtProductType, x, y, w);
+            javax.swing.JTextField txtQuantity = new javax.swing.JTextField(dash(item.getQuantity()));
+            y = IconFactory.addFormField(content, "Quantity:", txtQuantity, x, y, w);
+            javax.swing.JTextField txtManufactureDate = new javax.swing.JTextField(dash(item.getManufactureDate()));
+            DateTimePicker.attachDate(txtManufactureDate);
+            y = IconFactory.addFormField(content, "Manufacture Date (yyyy-MM-dd):", txtManufactureDate, x, y, w);
+            javax.swing.JTextField txtExpireDate = new javax.swing.JTextField(dash(item.getExpireDate()));
+            DateTimePicker.attachDate(txtExpireDate);
+            y = IconFactory.addFormField(content, "Expire Date (yyyy-MM-dd):", txtExpireDate, x, y, w);
+            javax.swing.JTextField txtDescription = new javax.swing.JTextField(dash(item.getDescription()));
+            y = IconFactory.addFormField(content, "Description:", txtDescription, x, y, w);
+
+            y += 6;
+            y = IconFactory.addFormSectionHeader(content, "Supplier Information", x, y, w);
+            javax.swing.JTextField txtSupplierName = new javax.swing.JTextField(dash(item.getSupplierName()));
+            y = IconFactory.addFormField(content, "Supplier Name:", txtSupplierName, x, y, w);
+            javax.swing.JTextField txtBuyingPrice = new javax.swing.JTextField(dash(item.getBuyingPrice()));
+            y = IconFactory.addFormField(content, "Buying Price:", txtBuyingPrice, x, y, w);
+            javax.swing.JTextField txtContactNumber = new javax.swing.JTextField(dash(item.getContactNumber()));
+            y = IconFactory.addFormField(content, "Contact Number:", txtContactNumber, x, y, w);
+            javax.swing.JTextField txtSellingPrice = new javax.swing.JTextField(dash(item.getSellingPrice()));
+            y = IconFactory.addFormField(content, "Selling Price:", txtSellingPrice, x, y, w);
+            javax.swing.JTextField txtCompanyName = new javax.swing.JTextField(dash(item.getCompanyName()));
+            y = IconFactory.addFormField(content, "Company Name:", txtCompanyName, x, y, w);
+
+            IconFactory.showScrollableFormDialog(OS_IM_Grid.this, "Edit Product", content, y, () -> {
+                if (txtProductName.getText().trim().isEmpty()) {
+                    return "Product Name is required.";
+                }
+                item.setProductName(txtProductName.getText().trim());
+                item.setProductType(txtProductType.getText().trim());
+                item.setQuantity(txtQuantity.getText().trim());
+                item.setManufactureDate(txtManufactureDate.getText().trim());
+                item.setExpireDate(txtExpireDate.getText().trim());
+                item.setDescription(txtDescription.getText().trim());
+                item.setSupplierName(txtSupplierName.getText().trim());
+                item.setBuyingPrice(txtBuyingPrice.getText().trim());
+                item.setContactNumber(txtContactNumber.getText().trim());
+                item.setSellingPrice(txtSellingPrice.getText().trim());
+                item.setCompanyName(txtCompanyName.getText().trim());
+                controller.InventoryManagementController.updateProduct(item);
+                tableModel.setValueAt(item.getProductName(), modelRow, 1);
+                tableModel.setValueAt(item.getProductType(), modelRow, 2);
+                tableModel.setValueAt(item.getQuantity(), modelRow, 3);
+                tableModel.setValueAt(item.getManufactureDate(), modelRow, 4);
+                tableModel.setValueAt(item.getExpireDate(), modelRow, 5);
+                tableModel.setValueAt(item.getSupplierName(), modelRow, 6);
+                tableModel.setValueAt(item.getContactNumber(), modelRow, 7);
+                IconFactory.showSuccessDialog(OS_IM_Grid.this, "Product updated successfully!", null);
+                return null;
+            });
+        }
+
+        private String dash(String v) {
+            return v == null || "Nil".equalsIgnoreCase(v.trim()) ? "" : v;
         }
     }
 
