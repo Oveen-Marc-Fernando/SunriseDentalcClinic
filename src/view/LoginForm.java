@@ -10,8 +10,8 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.prefs.Preferences;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import model.User;
 
 /**
@@ -37,6 +37,7 @@ public class LoginForm extends javax.swing.JFrame {
 
     private static final java.awt.Color EYE_COLOR = new java.awt.Color(90, 90, 90);
     private static final int EYE_SIZE = 16;
+    private static final java.awt.Color CONNECT_ICON_COLOR = new java.awt.Color(120, 120, 120);
 
     private boolean passwordVisible = false;
 
@@ -68,7 +69,13 @@ public class LoginForm extends javax.swing.JFrame {
         initComponents();
         btnShowHide.setText(null);
         btnShowHide.setIcon(IconFactory.eye(EYE_COLOR, EYE_SIZE)); // crisp vector eye — replaces "Show"/"Hide" text that was ellipsis-truncated in this button's narrow 35px width
-        setSize(500, 440);
+        IconFactory.roundCorners(pnlLeft, 28);
+        lblLeftLogo.setIcon(IconFactory.brandLogoOnColor(190, 40));
+        lblIconMail.setIcon(IconFactory.mail(CONNECT_ICON_COLOR, 22));
+        lblIconInstagram.setIcon(IconFactory.instagram(CONNECT_ICON_COLOR, 22));
+        lblIconTiktok.setIcon(IconFactory.tiktok(CONNECT_ICON_COLOR, 22));
+        lblIconWhatsapp.setIcon(IconFactory.whatsapp(CONNECT_ICON_COLOR, 22));
+        setSize(640, 460);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         blockParent();
@@ -176,11 +183,9 @@ public class LoginForm extends javax.swing.JFrame {
         btnLogin.setCursor(hand);
         btnShowHide.setCursor(hand);
         chkRememberMe.setCursor(hand);
-        lblRegister.setCursor(hand);
+        btnRegisterLeft.setCursor(hand);
 
-        lblRegister.addMouseListener(new MouseAdapter() {
-            @Override public void mousePressed(MouseEvent e) { openRegister(); }
-        });
+        btnRegisterLeft.addActionListener(e -> openRegister());
         lblCloseBtn.addMouseListener(new MouseAdapter() {
             @Override public void mousePressed(MouseEvent e) { dispose(); }
         });
@@ -203,6 +208,11 @@ public class LoginForm extends javax.swing.JFrame {
 
         panel = new javax.swing.JPanel();
         lblCloseBtn = new javax.swing.JLabel();
+        pnlLeft = new javax.swing.JPanel();
+        lblLeftLogo = new javax.swing.JLabel();
+        lblWelcome = new javax.swing.JLabel();
+        lblWelcomeSub = new javax.swing.JLabel();
+        btnRegisterLeft = new javax.swing.JButton();
         lblTitle = new javax.swing.JLabel();
         lblUsername = new javax.swing.JLabel();
         txtUsername = new javax.swing.JTextField();
@@ -211,7 +221,11 @@ public class LoginForm extends javax.swing.JFrame {
         btnShowHide = new javax.swing.JButton();
         chkRememberMe = new javax.swing.JCheckBox();
         btnLogin = new javax.swing.JButton();
-        lblRegister = new javax.swing.JLabel();
+        lblConnectWith = new javax.swing.JLabel();
+        lblIconMail = new javax.swing.JLabel();
+        lblIconInstagram = new javax.swing.JLabel();
+        lblIconTiktok = new javax.swing.JLabel();
+        lblIconWhatsapp = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Login");
@@ -221,7 +235,8 @@ public class LoginForm extends javax.swing.JFrame {
         panel.setBackground(new java.awt.Color(255, 255, 255));
         panel.setLayout(null);
 
-        lblCloseBtn.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblCloseBtn.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblCloseBtn.setForeground(new java.awt.Color(140, 140, 140));
         lblCloseBtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblCloseBtn.setText("X");
         lblCloseBtn.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -230,37 +245,69 @@ public class LoginForm extends javax.swing.JFrame {
             }
         });
         panel.add(lblCloseBtn);
-        lblCloseBtn.setBounds(440, 20, 30, 30);
+        lblCloseBtn.setBounds(598, 14, 26, 26);
+
+        pnlLeft.setBackground(new java.awt.Color(231, 115, 36));
+        pnlLeft.setLayout(null);
+
+        lblLeftLogo.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        pnlLeft.add(lblLeftLogo);
+        lblLeftLogo.setBounds(20, 24, 190, 40);
+
+        lblWelcome.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        lblWelcome.setForeground(new java.awt.Color(255, 255, 255));
+        lblWelcome.setText("Hello, Welcome!");
+        pnlLeft.add(lblWelcome);
+        lblWelcome.setBounds(20, 190, 200, 34);
+
+        lblWelcomeSub.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblWelcomeSub.setForeground(new java.awt.Color(255, 235, 220));
+        lblWelcomeSub.setText("<html>Please login to your account</html>");
+        pnlLeft.add(lblWelcomeSub);
+        lblWelcomeSub.setBounds(30, 230, 200, 44);
+
+        btnRegisterLeft.setBackground(new java.awt.Color(255, 255, 255));
+        btnRegisterLeft.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnRegisterLeft.setForeground(new java.awt.Color(231, 115, 36));
+        btnRegisterLeft.setText("Register");
+        btnRegisterLeft.setBorderPainted(false);
+        btnRegisterLeft.setFocusPainted(false);
+        pnlLeft.add(btnRegisterLeft);
+        btnRegisterLeft.setBounds(40, 300, 130, 42);
+
+        panel.add(pnlLeft);
+        pnlLeft.setBounds(30, 30, 230, 400);
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 28)); // NOI18N
-        lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblTitle.setText("Login");
         panel.add(lblTitle);
-        lblTitle.setBounds(0, 50, 500, 50);
+        lblTitle.setBounds(300, 48, 290, 44);
 
-        lblUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblUsername.setText("Username:");
+        lblUsername.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblUsername.setForeground(new java.awt.Color(90, 90, 90));
+        lblUsername.setText("Username or Email");
         panel.add(lblUsername);
-        lblUsername.setBounds(80, 140, 90, 25);
+        lblUsername.setBounds(300, 112, 200, 20);
 
         txtUsername.setBackground(new java.awt.Color(240, 240, 240));
+        txtUsername.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 12, 0, 12));
         txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         panel.add(txtUsername);
-        txtUsername.setBounds(170, 140, 250, 30);
+        txtUsername.setBounds(300, 136, 290, 38);
 
-        lblPassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblPassword.setText("Password:");
+        lblPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblPassword.setForeground(new java.awt.Color(90, 90, 90));
+        lblPassword.setText("Password");
         panel.add(lblPassword);
-        lblPassword.setBounds(80, 190, 90, 25);
+        lblPassword.setBounds(300, 186, 200, 20);
 
         txtPassword.setBackground(new java.awt.Color(240, 240, 240));
+        txtPassword.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 12, 0, 40));
         txtPassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         panel.add(txtPassword);
-        txtPassword.setBounds(170, 190, 215, 30);
+        txtPassword.setBounds(300, 210, 250, 38);
 
-        btnShowHide.setBackground(new java.awt.Color(220, 220, 220));
-        btnShowHide.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
-        btnShowHide.setText("Show");
         btnShowHide.setToolTipText("Show / hide password");
         btnShowHide.setBorderPainted(false);
         btnShowHide.setFocusPainted(false);
@@ -270,7 +317,7 @@ public class LoginForm extends javax.swing.JFrame {
             }
         });
         panel.add(btnShowHide);
-        btnShowHide.setBounds(380, 190, 35, 30);
+        btnShowHide.setBounds(550, 210, 40, 38);
 
         chkRememberMe.setBackground(new java.awt.Color(255, 255, 255));
         chkRememberMe.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
@@ -281,33 +328,47 @@ public class LoginForm extends javax.swing.JFrame {
             }
         });
         panel.add(chkRememberMe);
-        chkRememberMe.setBounds(180, 230, 130, 25);
+        chkRememberMe.setBounds(300, 260, 160, 24);
 
-        btnLogin.setBackground(new java.awt.Color(255, 140, 0));
+        btnLogin.setBackground(new java.awt.Color(231, 115, 36));
         btnLogin.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         btnLogin.setForeground(new java.awt.Color(255, 255, 255));
         btnLogin.setText("Login");
+        btnLogin.setBorderPainted(false);
+        btnLogin.setFocusPainted(false);
         btnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnLoginActionPerformed(evt);
             }
         });
         panel.add(btnLogin);
-        btnLogin.setBounds(170, 270, 130, 40);
+        btnLogin.setBounds(300, 300, 290, 46);
 
-        lblRegister.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
-        lblRegister.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblRegister.setText("<html>Don't have an account? <u><font color='#0066cc'>Register</font></u></html>");
-        lblRegister.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lblRegisterMouseClicked(evt);
-            }
-        });
-        panel.add(lblRegister);
-        lblRegister.setBounds(50, 340, 360, 25);
+        lblConnectWith.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        lblConnectWith.setForeground(new java.awt.Color(140, 140, 140));
+        lblConnectWith.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblConnectWith.setText("or connect with");
+        panel.add(lblConnectWith);
+        lblConnectWith.setBounds(300, 358, 290, 20);
+
+        lblIconMail.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        panel.add(lblIconMail);
+        lblIconMail.setBounds(360, 386, 26, 26);
+
+        lblIconInstagram.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        panel.add(lblIconInstagram);
+        lblIconInstagram.setBounds(410, 386, 26, 26);
+
+        lblIconTiktok.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        panel.add(lblIconTiktok);
+        lblIconTiktok.setBounds(460, 386, 26, 26);
+
+        lblIconWhatsapp.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        panel.add(lblIconWhatsapp);
+        lblIconWhatsapp.setBounds(510, 386, 26, 26);
 
         getContentPane().add(panel);
-        panel.setBounds(0, 0, 500, 440);
+        panel.setBounds(0, 0, 640, 460);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -337,11 +398,10 @@ public class LoginForm extends javax.swing.JFrame {
         String password = String.valueOf(txtPassword.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Please enter both username and password.",
-                    "Validation Error", JOptionPane.WARNING_MESSAGE);
-            if (username.isEmpty()) txtUsername.requestFocusInWindow();
-            else                    txtPassword.requestFocusInWindow();
+            IconFactory.showErrorDialog(this, "Please enter both username and password.", () -> {
+                if (username.isEmpty()) txtUsername.requestFocusInWindow();
+                else                    txtPassword.requestFocusInWindow();
+            });
             return;
         }
 
@@ -367,11 +427,16 @@ public class LoginForm extends javax.swing.JFrame {
                         SwingUtilities.invokeLater(() -> openDashboard(authenticatedUser));
                     });
         } else {
-            JOptionPane.showMessageDialog(this,
-                    "Invalid username or password. Please try again.",
-                    "Authentication Failed", JOptionPane.ERROR_MESSAGE);
-            txtPassword.setText("");
-            txtPassword.requestFocusInWindow();
+            String status = loginController.getAccountStatus(username);
+            String message = "PENDING".equals(status)
+                    ? "Your account is still pending Administrator approval — you'll be able to log in once it's approved."
+                    : "REJECTED".equals(status)
+                            ? "This account's registration was rejected. Contact an Administrator for details."
+                            : "Invalid username or password. Please try again.";
+            IconFactory.showErrorDialog(this, message, () -> {
+                txtPassword.setText("");
+                txtPassword.requestFocusInWindow();
+            });
         }
     }
 
@@ -382,10 +447,6 @@ public class LoginForm extends javax.swing.JFrame {
 
     private void lblCloseBtnMouseClicked(java.awt.event.MouseEvent evt) {
         dispose();
-    }
-
-    private void lblRegisterMouseClicked(java.awt.event.MouseEvent evt) {
-        openRegister();
     }
 
     private boolean registerOpened = false;
@@ -404,14 +465,23 @@ public class LoginForm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogin;
+    private javax.swing.JButton btnRegisterLeft;
     private javax.swing.JButton btnShowHide;
     private javax.swing.JCheckBox chkRememberMe;
     private javax.swing.JLabel lblCloseBtn;
+    private javax.swing.JLabel lblConnectWith;
+    private javax.swing.JLabel lblIconInstagram;
+    private javax.swing.JLabel lblIconMail;
+    private javax.swing.JLabel lblIconTiktok;
+    private javax.swing.JLabel lblIconWhatsapp;
+    private javax.swing.JLabel lblLeftLogo;
     private javax.swing.JLabel lblPassword;
-    private javax.swing.JLabel lblRegister;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblUsername;
+    private javax.swing.JLabel lblWelcome;
+    private javax.swing.JLabel lblWelcomeSub;
     private javax.swing.JPanel panel;
+    private javax.swing.JPanel pnlLeft;
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
