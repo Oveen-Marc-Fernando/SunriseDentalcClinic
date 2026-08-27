@@ -25,7 +25,7 @@ public class D_Profile_4 extends javax.swing.JFrame {
         model.DentistModel m = controller.getDentistModel();
         if (m == null) return;
         if (m.getJoinedDate() != null)       txtJoinedDate.setText(m.getJoinedDate());
-        if (m.getEmploymentType() != null)   txtEmploymentType.setText(m.getEmploymentType());
+        if (m.getEmploymentType() != null)   cmbEmploymentType.setSelectedItem(m.getEmploymentType());
         if (m.getConsultationFee() != null)  txtConsultationFee.setText(m.getConsultationFee());
         if ("Full Time".equals(m.getEmploymentStatus())) chkFullTime.setSelected(true);
         if ("Part Time".equals(m.getEmploymentStatus())) chkPartTime.setSelected(true);
@@ -50,7 +50,7 @@ public class D_Profile_4 extends javax.swing.JFrame {
         lblJoinedDate = new javax.swing.JLabel();
         txtJoinedDate = new javax.swing.JTextField();
         lblEmploymentType = new javax.swing.JLabel();
-        txtEmploymentType = new javax.swing.JTextField();
+        cmbEmploymentType = new javax.swing.JComboBox();
         lblConsultationFee = new javax.swing.JLabel();
         txtConsultationFee = new javax.swing.JTextField();
         lblStatus = new javax.swing.JLabel();
@@ -157,9 +157,10 @@ public class D_Profile_4 extends javax.swing.JFrame {
         cardPanel.add(lblEmploymentType);
         lblEmploymentType.setBounds(60, 220, 150, 25);
 
-        txtEmploymentType.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        cardPanel.add(txtEmploymentType);
-        txtEmploymentType.setBounds(60, 250, 350, 35);
+        cmbEmploymentType.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        cmbEmploymentType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "General Dentist", "Specialist", "Consultant", "Resident" }));
+        cardPanel.add(cmbEmploymentType);
+        cmbEmploymentType.setBounds(60, 250, 350, 35);
 
         lblConsultationFee.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         lblConsultationFee.setText("Consultation Fee");
@@ -248,7 +249,7 @@ public class D_Profile_4 extends javax.swing.JFrame {
                 : chkContract.isSelected() ? "Contract" : "";
         controller.goNextFromStep4(
                 txtJoinedDate.getText(),
-                txtEmploymentType.getText(),
+                selectedEmploymentType(),
                 txtConsultationFee.getText(),
                 status,
                 this
@@ -262,12 +263,17 @@ public class D_Profile_4 extends javax.swing.JFrame {
                 : chkContract.isSelected() ? "Contract" : "";
         controller.updateFromStep4(
                 txtJoinedDate.getText(),
-                txtEmploymentType.getText(),
+                selectedEmploymentType(),
                 txtConsultationFee.getText(),
                 status,
                 this
         );
     }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private String selectedEmploymentType() {
+        Object choice = cmbEmploymentType.getSelectedItem();
+        return choice == null ? "" : choice.toString();
+    }
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(() -> new D_Profile_4(new controller.DentistProfileController(null)).setVisible(true));
@@ -281,6 +287,7 @@ public class D_Profile_4 extends javax.swing.JFrame {
     private javax.swing.JCheckBox chkContract;
     private javax.swing.JCheckBox chkFullTime;
     private javax.swing.JCheckBox chkPartTime;
+    private javax.swing.JComboBox cmbEmploymentType;
     private javax.swing.JLabel lblConsultationFee;
     private javax.swing.JLabel lblEmploymentType;
     private javax.swing.JLabel lblJoinedDate;
@@ -297,7 +304,6 @@ public class D_Profile_4 extends javax.swing.JFrame {
     private javax.swing.JPanel navBar;
     private javax.swing.JSeparator sepLine;
     private javax.swing.JTextField txtConsultationFee;
-    private javax.swing.JTextField txtEmploymentType;
     private javax.swing.JTextField txtJoinedDate;
     // End of variables declaration//GEN-END:variables
 }

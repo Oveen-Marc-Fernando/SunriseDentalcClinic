@@ -278,10 +278,18 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="javax.swing.JTextField" name="txtEmploymentType">
+            <Component class="javax.swing.JComboBox" name="cmbEmploymentType">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Segoe UI" size="13" style="0"/>
+                </Property>
+                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                  <StringArray count="4">
+                    <StringItem index="0" value="General Dentist"/>
+                    <StringItem index="1" value="Specialist"/>
+                    <StringItem index="2" value="Consultant"/>
+                    <StringItem index="3" value="Resident"/>
+                  </StringArray>
                 </Property>
               </Properties>
               <Constraints>
