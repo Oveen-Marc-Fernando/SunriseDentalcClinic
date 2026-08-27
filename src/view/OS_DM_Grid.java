@@ -8,7 +8,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
@@ -120,7 +119,7 @@ public class OS_DM_Grid extends javax.swing.JFrame {
         public Component getTableCellRendererComponent(JTable t, Object v,
                 boolean sel, boolean foc, int row, int col) {
             JPanel panel = new JPanel(null);
-            JButton btnUpdate = IconFactory.actionButton(icoUpdate, COLOR_BTN_UPDATE, "Update");
+            JButton btnUpdate = IconFactory.actionButton(icoUpdate, COLOR_BTN_UPDATE, "Edit");
             JButton btnDelete = IconFactory.actionButton(icoDelete, COLOR_BTN_DELETE, "Delete");
             btnUpdate.setBounds(14, 3, 38, 28);
             btnDelete.setBounds(58, 3, 38, 28);
@@ -198,7 +197,7 @@ public class OS_DM_Grid extends javax.swing.JFrame {
 
             switch (col) {
                 case 6: // Details column
-                    handleDetailsClick(dentistName);
+                    handleDetailsClick(modelRow);
                     break;
                 case 7: // Action column
                     handleActionClick(e, row, col, dentistName, modelRow);
@@ -209,36 +208,140 @@ public class OS_DM_Grid extends javax.swing.JFrame {
             }
         }
 
-        private void handleDetailsClick(String name) {
-            JOptionPane.showMessageDialog(OS_DM_Grid.this,
-                    "Details for: " + name, "Dentist Details",
-                    JOptionPane.INFORMATION_MESSAGE);
+        /** "View details" — opens the Edit popup. */
+        private void handleDetailsClick(int modelRow) {
+            String dentistId = String.valueOf(tableModel.getValueAt(modelRow, 1));
+            handleEditDentist(dentistId, modelRow);
         }
 
         private void handleActionClick(MouseEvent e, int row, int col, String name, int modelRow) {
             java.awt.Rectangle cellRect = tblDentists.getCellRect(row, col, false);
             int xInCell = e.getX() - cellRect.x;
+            String dentistId = String.valueOf(tableModel.getValueAt(modelRow, 1));
 
-            if (xInCell < 52) { // Update button
-                JOptionPane.showMessageDialog(OS_DM_Grid.this,
-                        "Update: " + name, "Update Dentist",
-                        JOptionPane.INFORMATION_MESSAGE);
+            if (xInCell < 52) { // Edit button — always opens the Edit popup.
+                // Create Login was dropped from here: dentists now set their
+                // username at Add time (OS_DM_1), so this grid no longer
+                // needs a separate login-creation path.
+                handleEditDentist(dentistId, modelRow);
             } else { // Delete button
-                int confirmed = JOptionPane.showConfirmDialog(OS_DM_Grid.this,
-                        "Delete dentist: " + name + "?", "Delete",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (confirmed == JOptionPane.YES_OPTION) {
-                    String doctorId = String.valueOf(tableModel.getValueAt(modelRow, 1));
-                    if (controller.DentistManagementController.deleteDentist(doctorId)) {
+                IconFactory.showConfirmDialog(OS_DM_Grid.this, "Delete dentist: " + name + "?", "Delete", () -> {
+                    if (controller.DentistManagementController.deleteDentist(dentistId)) {
                         tableModel.removeRow(modelRow);
                     } else {
-                        JOptionPane.showMessageDialog(OS_DM_Grid.this,
+                        IconFactory.showErrorDialog(OS_DM_Grid.this,
                                 "Couldn't delete " + name + " — they still have appointments on record. "
-                                + "Reassign or remove those first.",
-                                "Delete Failed", JOptionPane.ERROR_MESSAGE);
+                                + "Reassign or remove those first.", null);
                     }
+                });
+            }
+        }
+
+        /**
+         * The real Edit — a scrollable popup covering this dentist's
+         * Personal, Professional, Contact, and Employment details (the same
+         * four sections OS_DM_1..4 collect), pre-filled from their actual
+         * record. Availability (Working Days/Start/End/Break/Room) isn't
+         * included here — that's schedule configuration with its own
+         * picker widgets (WeekdayPicker etc.), not a good fit for a plain
+         * text-field popup; it stays only editable via the full wizard.
+         */
+        private void handleEditDentist(String dentistId, int modelRow) {
+            model.DentistModel d = controller.DentistManagementController.findById(dentistId);
+            if (d == null) {
+                IconFactory.showErrorDialog(OS_DM_Grid.this,
+                        "Couldn't find that dentist record anymore — try refreshing the grid.", null);
+                return;
+            }
+
+            final int x = 20, w = IconFactory.FORM_DIALOG_CONTENT_WIDTH;
+            javax.swing.JPanel content = new javax.swing.JPanel(null);
+            int y = 10;
+
+            y = IconFactory.addFormSectionHeader(content, "Personal Information", x, y, w);
+            javax.swing.JCheckBox[] titleBoxes = new javax.swing.JCheckBox[3];
+            y = IconFactory.addFormCheckboxRow(content, "Title:", new String[]{"Dr", "Mr", "Mrs"}, titleBoxes, d.getTitle(), x, y, w);
+            javax.swing.JCheckBox[] genderBoxes = new javax.swing.JCheckBox[2];
+            y = IconFactory.addFormCheckboxRow(content, "Gender:", new String[]{"Male", "Female"}, genderBoxes, d.getGender(), x, y, w);
+            javax.swing.JTextField txtFullName = new javax.swing.JTextField(dash(d.getFullName()));
+            y = IconFactory.addFormField(content, "Full Name:", txtFullName, x, y, w);
+            javax.swing.JTextField txtDentistId = new javax.swing.JTextField(d.getDentistId());
+            txtDentistId.setEditable(false);
+            y = IconFactory.addFormField(content, "Dentist ID:", txtDentistId, x, y, w);
+            javax.swing.JTextField txtDob = new javax.swing.JTextField(dash(d.getDob()));
+            y = IconFactory.addFormField(content, "DOB:", txtDob, x, y, w);
+            javax.swing.JTextField txtNic = new javax.swing.JTextField(dash(d.getNic()));
+            y = IconFactory.addFormField(content, "NIC:", txtNic, x, y, w);
+
+            y += 6;
+            y = IconFactory.addFormSectionHeader(content, "Professional Information", x, y, w);
+            javax.swing.JTextField txtSlmc = new javax.swing.JTextField(dash(d.getSlmcNo()));
+            y = IconFactory.addFormField(content, "SLMC No:", txtSlmc, x, y, w);
+            javax.swing.JTextField txtQualification = new javax.swing.JTextField(dash(d.getQualification()));
+            y = IconFactory.addFormField(content, "Qualification:", txtQualification, x, y, w);
+            javax.swing.JTextField txtSpecialization = new javax.swing.JTextField(dash(d.getSpecialization()));
+            y = IconFactory.addFormField(content, "Specialization:", txtSpecialization, x, y, w);
+            javax.swing.JTextField txtLicenseStatus = new javax.swing.JTextField(dash(d.getLicenseStatus()));
+            y = IconFactory.addFormField(content, "License Status:", txtLicenseStatus, x, y, w);
+
+            y += 6;
+            y = IconFactory.addFormSectionHeader(content, "Contact Information", x, y, w);
+            javax.swing.JTextField txtMobile = new javax.swing.JTextField(dash(d.getMobileNo()));
+            y = IconFactory.addFormField(content, "Mobile No:", txtMobile, x, y, w);
+            javax.swing.JTextField txtEmail = new javax.swing.JTextField(dash(d.getEmail()));
+            y = IconFactory.addFormField(content, "Email:", txtEmail, x, y, w);
+            javax.swing.JTextField txtAddress = new javax.swing.JTextField(dash(d.getAddress()));
+            y = IconFactory.addFormField(content, "Address:", txtAddress, x, y, w);
+
+            y += 6;
+            y = IconFactory.addFormSectionHeader(content, "Employment Information", x, y, w);
+            javax.swing.JTextField txtFee = new javax.swing.JTextField(dash(d.getConsultationFee()));
+            y = IconFactory.addFormField(content, "Consultation Fee:", txtFee, x, y, w);
+            javax.swing.JTextField txtEmploymentStatus = new javax.swing.JTextField(dash(d.getEmploymentStatus()));
+            y = IconFactory.addFormField(content, "Employment Status:", txtEmploymentStatus, x, y, w);
+
+            IconFactory.showScrollableFormDialog(OS_DM_Grid.this, "Edit Dentist", content, y, () -> {
+                if (txtFullName.getText().trim().isEmpty()) {
+                    return "Full Name is required.";
+                }
+                d.setTitle(firstChecked(titleBoxes));
+                d.setGender(firstChecked(genderBoxes));
+                d.setFullName(txtFullName.getText().trim());
+                d.setDob(txtDob.getText().trim());
+                d.setNic(txtNic.getText().trim());
+                d.setSlmcNo(txtSlmc.getText().trim());
+                d.setQualification(txtQualification.getText().trim());
+                d.setSpecialization(txtSpecialization.getText().trim());
+                d.setLicenseStatus(txtLicenseStatus.getText().trim());
+                d.setMobileNo(txtMobile.getText().trim());
+                d.setEmail(txtEmail.getText().trim());
+                d.setAddress(txtAddress.getText().trim());
+                d.setConsultationFee(txtFee.getText().trim());
+                d.setEmploymentStatus(txtEmploymentStatus.getText().trim());
+                if (!controller.DentistManagementController.registerDentist(d)) {
+                    return "Couldn't save — check the console for details and try again.";
+                }
+                tableModel.setValueAt(d.getFullName(), modelRow, 0);
+                tableModel.setValueAt(d.getSlmcNo(), modelRow, 2);
+                tableModel.setValueAt(d.getMobileNo(), modelRow, 3);
+                tableModel.setValueAt(d.getEmail(), modelRow, 4);
+                tableModel.setValueAt(d.getConsultationFee(), modelRow, 5);
+                IconFactory.showSuccessDialog(OS_DM_Grid.this, "Dentist updated successfully!", null);
+                return null;
+            });
+        }
+
+        private String firstChecked(javax.swing.JCheckBox[] boxes) {
+            for (javax.swing.JCheckBox box : boxes) {
+                if (box.isSelected()) {
+                    return box.getText();
                 }
             }
+            return "";
+        }
+
+        private String dash(String v) {
+            return v == null || "Nil".equalsIgnoreCase(v.trim()) ? "" : v;
         }
 
         private void handleLicenseToggle(int modelRow) {
@@ -314,7 +417,7 @@ public class OS_DM_Grid extends javax.swing.JFrame {
         if (tableModel.getRowCount() == 0) {
             for (model.DentistModel d : controller.DentistManagementController.getDirectory().values()) {
                 tableModel.addRow(new Object[]{
-                    d.getFullName(), d.getDoctorId(), d.getSlmcNo(), d.getMobileNo(), d.getEmail(),
+                    d.getFullName(), d.getDentistId(), d.getSlmcNo(), d.getMobileNo(), d.getEmail(),
                     d.getConsultationFee(), DETAILS_LINK, "", d.getLicenseStatus()
                 });
             }
@@ -421,14 +524,14 @@ public class OS_DM_Grid extends javax.swing.JFrame {
                 "Dentist Name", "Dentist ID", "SLMC No", "Mobile No", "Email", "Consultation Fee", "Details", "Action", "License"
             }
         ) {
-            Class[] types = new Class [] {
+            Class<?>[] types = new Class<?>[] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 true, true, true, true, true, true, false, false, false
             };
 
-            public Class getColumnClass(int columnIndex) {
+            public Class<?> getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
 
@@ -469,7 +572,10 @@ public class OS_DM_Grid extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        new OfficeStaff_Dashboard().setVisible(true);
+        // Must carry the real signed-in user back — the no-arg constructor
+        // passes null, which silently breaks any "who's logged in" UI
+        // reachable from that dashboard afterward (e.g. Edit Profile).
+        new OfficeStaff_Dashboard(controller.AppController.getCurrentUser()).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnBackActionPerformed
 
