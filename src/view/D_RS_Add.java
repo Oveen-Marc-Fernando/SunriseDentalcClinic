@@ -20,8 +20,15 @@ public class D_RS_Add extends javax.swing.JFrame {
     private static final java.awt.Color COLOR_READONLY_FG = new java.awt.Color(90, 90, 90);
 
     private final SupplyRequestController controller;
+    private final model.User user;
 
+    /** Backward-compatible no-arg entry point (e.g. {@code main()}) — submits without a dentist attribution. */
     public D_RS_Add() {
+        this((model.User) null);
+    }
+
+    public D_RS_Add(model.User user) {
+        this.user = user;
         this.controller = new SupplyRequestController();
         initComponents();
         lblLogo.setIcon(IconFactory.brandLogo(130, 40)); // crisp vector wordmark (fixes blurry 130x40 raster logo at HiDPI)
@@ -214,7 +221,7 @@ public class D_RS_Add extends javax.swing.JFrame {
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         dispose();
         javax.swing.SwingUtilities.invokeLater(() -> {
-            new D_RS_Grid().setVisible(true);
+            new D_RS_Grid(user).setVisible(true);
         });
     }//GEN-LAST:event_btnBackActionPerformed
 
@@ -225,6 +232,7 @@ public class D_RS_Add extends javax.swing.JFrame {
                 (String) cmbProductType.getSelectedItem(),
                 (String) cmbProductName.getSelectedItem(),
                 txtQuantity.getText(),
+                user != null ? user.getFullName() : null,
                 this
         );
         if (!ok) {
@@ -233,7 +241,7 @@ public class D_RS_Add extends javax.swing.JFrame {
         IconFactory.showSuccessDialog(this, "Product Added\nSuccessfully!", () -> {
             dispose();
             javax.swing.SwingUtilities.invokeLater(() -> {
-                new D_RS_Grid().setVisible(true);
+                new D_RS_Grid(user).setVisible(true);
             });
         });
     }//GEN-LAST:event_btnRequestActionPerformed
