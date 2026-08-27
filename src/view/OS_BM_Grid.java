@@ -151,23 +151,98 @@ public class OS_BM_Grid extends javax.swing.JFrame {
             int xInCell = e.getX() - cellRect.x;
 
             if (xInCell < 48) { // Edit
-                JOptionPane.showMessageDialog(OS_BM_Grid.this,
-                        "Edit Bill: " + billingId, "Edit Bill",
-                        JOptionPane.INFORMATION_MESSAGE);
+                handleEditBill(billingId, modelRow);
             } else { // Delete
-                int confirmed = JOptionPane.showConfirmDialog(OS_BM_Grid.this,
-                        "Delete bill " + billingId + " for " + name + "?", "Delete Bill",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (confirmed == JOptionPane.YES_OPTION) {
+                IconFactory.showConfirmDialog(OS_BM_Grid.this, "Delete bill " + billingId + " for " + name + "?", "Delete", () -> {
                     if (controller.BillingManagementController.delete(billingId)) {
                         tableModel.removeRow(modelRow);
                     } else {
-                        JOptionPane.showMessageDialog(OS_BM_Grid.this,
-                                "Couldn't delete bill " + billingId + " from the database.",
-                                "Delete Failed", JOptionPane.ERROR_MESSAGE);
+                        IconFactory.showErrorDialog(OS_BM_Grid.this,
+                                "Couldn't delete bill " + billingId + " from the database.", null);
+                    }
+                });
+            }
+        }
+
+        /**
+         * A scrollable Edit popup over just the bill's identifying/reference
+         * fields — Dentist Name, Patient Name, Appointment Date. The money
+         * fields (Appointment Charges, Clinical Total, Medicine Total, Total
+         * Bill Amount) are wizard-computed from services/medicines actually
+         * picked at billing time (stock gets deducted against them), so
+         * they're shown locked/read-only here rather than free-text
+         * editable — see BillingDAO.updateReferenceFields's javadoc.
+         */
+        private void handleEditBill(String billingId, int modelRow) {
+            model.BillingModel b = controller.BillingManagementController.getAll().stream()
+                    .filter(x -> billingId.equals(x.getBillingId()))
+                    .findFirst()
+                    .orElse(null);
+            if (b == null) {
+                IconFactory.showErrorDialog(OS_BM_Grid.this,
+                        "Couldn't find that bill anymore — try refreshing the grid.", null);
+                return;
+            }
+
+            final int x = 20, w = IconFactory.FORM_DIALOG_CONTENT_WIDTH;
+            JPanel content = new JPanel(null);
+            int y = 10;
+
+            y = IconFactory.addFormSectionHeader(content, "Bill Reference", x, y, w);
+            javax.swing.JTextField txtBillingId = new javax.swing.JTextField(dash(b.getBillingId()));
+            txtBillingId.setEditable(false);
+            y = IconFactory.addFormField(content, "Billing ID:", txtBillingId, x, y, w);
+            javax.swing.JTextField txtDentistName = new javax.swing.JTextField(dash(b.getDentistName()));
+            y = IconFactory.addFormField(content, "Dentist Name:", txtDentistName, x, y, w);
+            javax.swing.JTextField txtPatientName = new javax.swing.JTextField(dash(b.getPatientName()));
+            y = IconFactory.addFormField(content, "Patient Name:", txtPatientName, x, y, w);
+            javax.swing.JTextField txtAppointmentDate = new javax.swing.JTextField(dash(b.getAppointmentDate()));
+            DateTimePicker.attachDate(txtAppointmentDate);
+            y = IconFactory.addFormField(content, "Appointment Date (yyyy-MM-dd):", txtAppointmentDate, x, y, w);
+
+            y = IconFactory.addFormSectionHeader(content, "Amounts (read-only)", x, y, w);
+            javax.swing.JTextField txtCharges = new javax.swing.JTextField(
+                    controller.BillingManagementController.formatCurrency(b.getAppointmentCharges()));
+            txtCharges.setEditable(false);
+            y = IconFactory.addFormField(content, "Appointment Charges:", txtCharges, x, y, w);
+            javax.swing.JTextField txtClinical = new javax.swing.JTextField(
+                    controller.BillingManagementController.formatCurrency(b.getClinicalTotal()));
+            txtClinical.setEditable(false);
+            y = IconFactory.addFormField(content, "Clinical Total:", txtClinical, x, y, w);
+            javax.swing.JTextField txtMedicine = new javax.swing.JTextField(
+                    controller.BillingManagementController.formatCurrency(b.getMedicineTotal()));
+            txtMedicine.setEditable(false);
+            y = IconFactory.addFormField(content, "Medicine Total:", txtMedicine, x, y, w);
+            javax.swing.JTextField txtTotal = new javax.swing.JTextField(
+                    controller.BillingManagementController.formatCurrency(b.getTotalBillAmount()));
+            txtTotal.setEditable(false);
+            y = IconFactory.addFormField(content, "Total Bill Amount:", txtTotal, x, y, w);
+
+            IconFactory.showScrollableFormDialog(OS_BM_Grid.this, "Edit Bill", content, y, () -> {
+                if (txtDentistName.getText().trim().isEmpty() || txtPatientName.getText().trim().isEmpty()) {
+                    return "Dentist Name and Patient Name are required.";
+                }
+                String dateText = txtAppointmentDate.getText().trim();
+                if (!dateText.isEmpty()) {
+                    try {
+                        java.time.LocalDate.parse(dateText);
+                    } catch (Exception ex) {
+                        return "Appointment Date doesn't look valid — pick it from the calendar icon.";
                     }
                 }
-            }
+                boolean ok = controller.BillingManagementController.updateReferenceFields(
+                        billingId, txtDentistName.getText().trim(), txtPatientName.getText().trim(), dateText);
+                if (!ok) {
+                    return "Couldn't save — check the console for details and try again.";
+                }
+                tableModel.setValueAt(txtPatientName.getText().trim(), modelRow, 1);
+                IconFactory.showSuccessDialog(OS_BM_Grid.this, "Bill updated successfully!", null);
+                return null;
+            });
+        }
+
+        private String dash(String v) {
+            return v == null || "Nil".equalsIgnoreCase(v.trim()) ? "" : v;
         }
     }
 
@@ -462,14 +537,14 @@ public class OS_BM_Grid extends javax.swing.JFrame {
                 "Billing ID", "Patient Name", "Total Amount", "Print", "Actions"
             }
         ) {
-            Class[] types = new Class [] {
+            Class<?>[] types = new Class<?>[] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false
             };
 
-            public Class getColumnClass(int columnIndex) {
+            public Class<?> getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
 
