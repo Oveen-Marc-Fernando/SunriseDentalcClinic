@@ -7,9 +7,9 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -123,34 +123,167 @@ public class OS_PM_Grid extends javax.swing.JFrame {
             int modelRow = tblPatients.convertRowIndexToModel(row);
             String patientName = tableModel.getValueAt(modelRow, 1).toString();
 
-            if (col == 5) { // Action column
-                handleActionClick(e, row, col, patientName, modelRow);
+            String patientId = String.valueOf(tableModel.getValueAt(modelRow, 0));
+            if (col == 4) { // "View details" link — opens the Edit popup
+                handleEditPatient(patientId, modelRow);
+            } else if (col == 5) { // Action column
+                handleActionClick(e, row, col, patientName, patientId, modelRow);
             }
         }
 
-        private void handleActionClick(MouseEvent e, int row, int col, String name, int modelRow) {
+        private void handleActionClick(MouseEvent e, int row, int col, String name, String patientId, int modelRow) {
             java.awt.Rectangle cellRect = tblPatients.getCellRect(row, col, false);
             int xInCell = e.getX() - cellRect.x;
 
-            if (xInCell < 48) { // Edit button
-                JOptionPane.showMessageDialog(OS_PM_Grid.this,
-                        "Edit Patient: " + name, "Edit Patient",
-                        JOptionPane.INFORMATION_MESSAGE);
+            if (xInCell < 48) { // Edit button — always opens the Edit popup.
+                // Create Login was dropped from here: patients now set their
+                // username at Add time (OS_PM_1), so this grid no longer
+                // needs a separate login-creation path.
+                handleEditPatient(patientId, modelRow);
             } else { // Delete button
-                int confirmed = JOptionPane.showConfirmDialog(OS_PM_Grid.this,
-                        "Delete patient: " + name + "?", "Delete Patient",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (confirmed == JOptionPane.YES_OPTION) {
-                    String patientId = String.valueOf(tableModel.getValueAt(modelRow, 0));
+                IconFactory.showConfirmDialog(OS_PM_Grid.this, "Delete patient: " + name + "?", "Delete", () -> {
                     if (controller.PatientManagementController.delete(patientId)) {
                         tableModel.removeRow(modelRow);
                     } else {
-                        JOptionPane.showMessageDialog(OS_PM_Grid.this,
-                                "Couldn't delete " + name + " from the database.",
-                                "Delete Failed", JOptionPane.ERROR_MESSAGE);
+                        IconFactory.showErrorDialog(OS_PM_Grid.this,
+                                "Couldn't delete " + name + " from the database.", null);
                     }
+                });
+            }
+        }
+
+        /**
+         * The real Edit — a scrollable popup covering this patient's
+         * Personal and Contact Information (the same two sections OS_PM_1/2
+         * collect), pre-filled from their actual record and saved back with
+         * a single "Save Details!" button instead of walking the wizard.
+         */
+        private void handleEditPatient(String patientId, int modelRow) {
+            model.PatientModel p = controller.PatientManagementController.findById(patientId);
+            if (p == null) {
+                IconFactory.showErrorDialog(OS_PM_Grid.this,
+                        "Couldn't find that patient record anymore — try refreshing the grid.", null);
+                return;
+            }
+
+            final int x = 20, w = IconFactory.FORM_DIALOG_CONTENT_WIDTH;
+            JPanel content = new JPanel(null);
+            int y = 10;
+
+            y = IconFactory.addFormSectionHeader(content, "Personal Information", x, y, w);
+            javax.swing.JCheckBox[] titleBoxes = new javax.swing.JCheckBox[3];
+            y = IconFactory.addFormCheckboxRow(content, "Title:", new String[]{"Mr", "Mrs", "Dr"}, titleBoxes, p.getTitle(), x, y, w);
+            javax.swing.JCheckBox[] genderBoxes = new javax.swing.JCheckBox[2];
+            y = IconFactory.addFormCheckboxRow(content, "Gender:", new String[]{"Male", "Female"}, genderBoxes, p.getGender(), x, y, w);
+            JTextField txtFullName = new JTextField(dash(p.getFullName()));
+            y = IconFactory.addFormField(content, "Full Name:", txtFullName, x, y, w);
+            JTextField txtPatientId = new JTextField(p.getPatientId());
+            txtPatientId.setEditable(false);
+            y = IconFactory.addFormField(content, "Patient ID:", txtPatientId, x, y, w);
+            JTextField txtDob = new JTextField(dash(p.getDob()));
+            y = IconFactory.addFormField(content, "DOB:", txtDob, x, y, w);
+            JTextField txtNic = new JTextField(dash(p.getNic()));
+            y = IconFactory.addFormField(content, "NIC/Passport:", txtNic, x, y, w);
+            JTextField txtAge = new JTextField(dash(p.getAge()));
+            y = IconFactory.addFormField(content, "Age:", txtAge, x, y, w);
+
+            y += 6;
+            y = IconFactory.addFormSectionHeader(content, "Contact Information", x, y, w);
+            JTextField txtAddress = new JTextField(dash(p.getAddressLine1()));
+            y = IconFactory.addFormField(content, "Address Line 1:", txtAddress, x, y, w);
+            JTextField txtAddress2 = new JTextField(dash(p.getAddressLine2()));
+            y = IconFactory.addFormField(content, "Address Line 2:", txtAddress2, x, y, w);
+            JTextField txtCity = new JTextField(dash(p.getCity()));
+            y = IconFactory.addFormField(content, "City:", txtCity, x, y, w);
+            JTextField txtMobile = new JTextField(dash(p.getMobileNo()));
+            y = IconFactory.addFormField(content, "Mobile No:", txtMobile, x, y, w);
+            JTextField txtLandline = new JTextField(dash(p.getLandlineNo()));
+            y = IconFactory.addFormField(content, "Landline No:", txtLandline, x, y, w);
+            JTextField txtEmail = new JTextField(dash(p.getEmail()));
+            y = IconFactory.addFormField(content, "Email:", txtEmail, x, y, w);
+
+            y += 6;
+            y = IconFactory.addFormSectionHeader(content, "Medical Information", x, y, w);
+            JTextField txtBloodGroup = new JTextField(dash(p.getBloodGroup()));
+            y = IconFactory.addFormField(content, "Blood Group:", txtBloodGroup, x, y, w);
+            JTextField txtAllergies = new JTextField(dash(p.getAllergies()));
+            y = IconFactory.addFormField(content, "Allergies:", txtAllergies, x, y, w);
+            JTextField txtMedicalConditions = new JTextField(dash(p.getMedicalConditions()));
+            y = IconFactory.addFormField(content, "Medical Conditions:", txtMedicalConditions, x, y, w);
+            JTextField txtCurrentMedications = new JTextField(dash(p.getCurrentMedications()));
+            y = IconFactory.addFormField(content, "Current Medications:", txtCurrentMedications, x, y, w);
+            JTextField txtPreviousSurgeries = new JTextField(dash(p.getPreviousSurgeries()));
+            y = IconFactory.addFormField(content, "Previous Surgeries:", txtPreviousSurgeries, x, y, w);
+            JTextField txtGeneralMedicalNotes = new JTextField(dash(p.getGeneralMedicalNotes()));
+            y = IconFactory.addFormField(content, "General Medical Notes:", txtGeneralMedicalNotes, x, y, w);
+
+            y += 6;
+            y = IconFactory.addFormSectionHeader(content, "Dental Information", x, y, w);
+            JTextField txtLastDentalVisit = new JTextField(dash(p.getLastDentalVisit()));
+            y = IconFactory.addFormField(content, "Last Dental Visit:", txtLastDentalVisit, x, y, w);
+            JTextField txtDentalHistory = new JTextField(dash(p.getDentalHistory()));
+            y = IconFactory.addFormField(content, "Dental History:", txtDentalHistory, x, y, w);
+            JTextField txtDentalProblems = new JTextField(dash(p.getDentalProblems()));
+            y = IconFactory.addFormField(content, "Dental Problems:", txtDentalProblems, x, y, w);
+            javax.swing.JCheckBox[] oralHygieneBoxes = new javax.swing.JCheckBox[3];
+            y = IconFactory.addFormCheckboxRow(content, "Oral Hygiene:", new String[]{"Good", "Fair", "Poor"}, oralHygieneBoxes,
+                    p.getOralHygiene(), x, y, w);
+            JTextField txtDentalMedicalNotes = new JTextField(dash(p.getDentalMedicalNotes()));
+            y = IconFactory.addFormField(content, "Dental Medical Notes:", txtDentalMedicalNotes, x, y, w);
+
+            IconFactory.showScrollableFormDialog(OS_PM_Grid.this, "Edit Patient", content, y, () -> {
+                if (txtFullName.getText().trim().isEmpty()) {
+                    return "Full Name is required.";
+                }
+                if (txtMobile.getText().trim().isEmpty()) {
+                    return "Mobile No is required.";
+                }
+                p.setTitle(firstChecked(titleBoxes));
+                p.setGender(firstChecked(genderBoxes));
+                p.setFullName(txtFullName.getText().trim());
+                p.setDob(txtDob.getText().trim());
+                p.setNic(txtNic.getText().trim());
+                p.setAge(txtAge.getText().trim());
+                p.setAddressLine1(txtAddress.getText().trim());
+                p.setAddressLine2(txtAddress2.getText().trim());
+                p.setCity(txtCity.getText().trim());
+                p.setMobileNo(txtMobile.getText().trim());
+                p.setLandlineNo(txtLandline.getText().trim());
+                p.setEmail(txtEmail.getText().trim());
+                p.setBloodGroup(txtBloodGroup.getText().trim());
+                p.setAllergies(txtAllergies.getText().trim());
+                p.setMedicalConditions(txtMedicalConditions.getText().trim());
+                p.setCurrentMedications(txtCurrentMedications.getText().trim());
+                p.setPreviousSurgeries(txtPreviousSurgeries.getText().trim());
+                p.setGeneralMedicalNotes(txtGeneralMedicalNotes.getText().trim());
+                p.setLastDentalVisit(txtLastDentalVisit.getText().trim());
+                p.setDentalHistory(txtDentalHistory.getText().trim());
+                p.setDentalProblems(txtDentalProblems.getText().trim());
+                p.setOralHygiene(firstChecked(oralHygieneBoxes));
+                p.setDentalMedicalNotes(txtDentalMedicalNotes.getText().trim());
+                if (!controller.PatientManagementController.updatePatient(p)) {
+                    return "Couldn't save — check the console for details and try again.";
+                }
+                tableModel.setValueAt(p.getPatientId(), modelRow, 0);
+                tableModel.setValueAt(p.getFullName(), modelRow, 1);
+                tableModel.setValueAt(p.getLastDentalVisit(), modelRow, 2);
+                tableModel.setValueAt(p.getEmail(), modelRow, 3);
+                IconFactory.showSuccessDialog(OS_PM_Grid.this, "Patient updated successfully!", null);
+                return null;
+            });
+        }
+
+        private String firstChecked(javax.swing.JCheckBox[] boxes) {
+            for (javax.swing.JCheckBox box : boxes) {
+                if (box.isSelected()) {
+                    return box.getText();
                 }
             }
+            return "";
+        }
+
+        private String dash(String v) {
+            return v == null || "Nil".equalsIgnoreCase(v.trim()) ? "" : v;
         }
     }
 
@@ -302,14 +435,14 @@ public class OS_PM_Grid extends javax.swing.JFrame {
                 "Patient ID", "Patient Name", "Last Dental Visit", "Email", "Details", "Action"
             }
         ) {
-            Class[] types = new Class [] {
+            Class<?>[] types = new Class<?>[] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false, false
             };
 
-            public Class getColumnClass(int columnIndex) {
+            public Class<?> getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
 
