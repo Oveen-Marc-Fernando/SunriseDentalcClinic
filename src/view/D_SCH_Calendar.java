@@ -25,8 +25,9 @@ import javax.swing.SwingConstants;
  * "My Schedule" — a read-only monthly calendar showing this dentist's
  * working days, with any day that already has a booked appointment
  * highlighted in red. Clicking a booked (red) day shows who it's booked
- * for and at what time. Reached from the Dentist Dashboard's "My Schedule"
- * tile.
+ * for and at what time — pulled from this dentist's own real rows in the
+ * "appointments" table, not sample data. Reached from the Dentist
+ * Dashboard's "My Schedule" tile.
  */
 public class D_SCH_Calendar extends javax.swing.JFrame {
 
@@ -35,6 +36,9 @@ public class D_SCH_Calendar extends javax.swing.JFrame {
     private static final Color WEEKDAY_HEADER = new Color(110, 110, 110);
     private static final int CELL_SIZE = 46;
     private static final DateTimeFormatter DATE_DISPLAY = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter DATE_STORED = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter TIME_STORED = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter TIME_DISPLAY = DateTimeFormatter.ofPattern("hh:mm a");
 
     /** One booked slot's details, shown when its calendar day is clicked. */
     private static final class BookedAppointment {
@@ -46,37 +50,19 @@ public class D_SCH_Calendar extends javax.swing.JFrame {
         }
     }
 
-    // Sample "already booked" dates — a day can hold any number of
-    // appointments, not just one: 19-08 shows a single booking, 17-08 shows
-    // two, and 21-08 shows eight (a full day) to prove the dialog actually
-    // scrolls once a day is busy enough to need it. The first three names
-    // match "My Appointments" (AP-201/202/203), so the two screens agree
-    // with each other. In a fully wired build both would read from one
-    // shared source instead of each screen carrying its own sample copy.
-    private static final Map<LocalDate, List<BookedAppointment>> BUSY_DATES = new LinkedHashMap<>();
-    static {
-        addBooking(2026, 8, 17, "09:00 AM", "Thejaan");
-        addBooking(2026, 8, 17, "01:30 PM", "Nadeesha");
-        addBooking(2026, 8, 19, "11:00 AM", "Asini");
-        addBooking(2026, 8, 21, "09:00 AM", "Kaveesha");
-        addBooking(2026, 8, 21, "09:45 AM", "Thejaan");
-        addBooking(2026, 8, 21, "10:30 AM", "Asini");
-        addBooking(2026, 8, 21, "11:15 AM", "Nadeesha");
-        addBooking(2026, 8, 21, "01:00 PM", "Ashan");
-        addBooking(2026, 8, 21, "01:45 PM", "Nimasha");
-        addBooking(2026, 8, 21, "02:30 PM", "Dilani");
-        addBooking(2026, 8, 21, "03:15 PM", "Chamod");
-    }
-
-    private static void addBooking(int year, int month, int day, String time, String patientName) {
-        LocalDate date = LocalDate.of(year, month, day);
-        BUSY_DATES.computeIfAbsent(date, d -> new ArrayList<>()).add(new BookedAppointment(time, patientName));
-    }
+    private final String dentistName;
+    private final Map<LocalDate, List<BookedAppointment>> busyDates = new LinkedHashMap<>();
 
     private int viewYear;
     private int viewMonth; // 1-12
 
+    /** Backward-compatible no-arg entry point (e.g. {@code main()}) — shows an empty calendar without a logged-in dentist. */
     public D_SCH_Calendar() {
+        this(null);
+    }
+
+    public D_SCH_Calendar(model.User user) {
+        this.dentistName = (user != null && user.getFullName() != null) ? user.getFullName() : null;
         initComponents();
         lblLogo.setIcon(IconFactory.brandLogo(130, 40)); // crisp vector wordmark (fixes blurry 130x40 raster logo at HiDPI)
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
@@ -96,9 +82,44 @@ public class D_SCH_Calendar extends javax.swing.JFrame {
         viewYear = today.getYear();
         viewMonth = today.getMonthValue();
 
+        loadBusyDates();
         renderCalendar();
         setSize(1016, 739);
         setLocationRelativeTo(null);
+    }
+
+    /** Reads this dentist's own real appointments (db/schema.sql) and groups them by date. */
+    private void loadBusyDates() {
+        if (dentistName == null) {
+            return; // no logged-in dentist context (e.g. main()) — nothing to show
+        }
+        for (model.AppointmentModel a : controller.AppointmentManagementController.getForDentist(dentistName)) {
+            LocalDate date = parseDate(a.getDate());
+            if (date == null) continue;
+            String time = formatTime(a.getTime());
+            String patientName = (a.getPatientName() == null || a.getPatientName().trim().isEmpty())
+                    ? "Unknown" : a.getPatientName().trim();
+            busyDates.computeIfAbsent(date, d -> new ArrayList<>()).add(new BookedAppointment(time, patientName));
+        }
+    }
+
+    private static LocalDate parseDate(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return null;
+        try {
+            return LocalDate.parse(raw.trim(), DATE_STORED);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** "HH:mm" -&gt; "hh:mm a" for display; falls back to whatever was stored if it doesn't parse. */
+    private static String formatTime(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return "-";
+        try {
+            return java.time.LocalTime.parse(raw.trim(), TIME_STORED).format(TIME_DISPLAY);
+        } catch (Exception e) {
+            return raw.trim();
+        }
     }
 
     private void renderCalendar() {
@@ -126,7 +147,7 @@ public class D_SCH_Calendar extends javax.swing.JFrame {
         }
         for (int day = 1; day <= ym.lengthOfMonth(); day++) {
             LocalDate date = ym.atDay(day);
-            grid.add(dayCell(date, BUSY_DATES.get(date)));
+            grid.add(dayCell(date, busyDates.get(date)));
         }
 
         pnlCalendarWrap.setLayout(new java.awt.BorderLayout());
