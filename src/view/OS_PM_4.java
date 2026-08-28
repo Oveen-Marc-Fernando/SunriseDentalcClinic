@@ -1,13 +1,6 @@
 package view;
 
 import controller.PatientManagementController;
-import java.awt.Color;
-import java.awt.Font;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 /**
  * Step 4: Dental Information Form & Final Submission Dialog.
@@ -30,7 +23,7 @@ public class OS_PM_4 extends javax.swing.JFrame {
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
         populateFieldsFromModel();
         PillToggle.attachExclusiveGroup(
-                new javax.swing.JCheckBox[]{chkSmoker, chkAlcohol, chkOther},
+                new javax.swing.JCheckBox[]{chkGood, chkFair, chkPoor},
                 new String[]{"Good", "Fair", "Poor"});
         setSize(1016, 739);
         setLocationRelativeTo(null);
@@ -42,64 +35,15 @@ public class OS_PM_4 extends javax.swing.JFrame {
         if (m.getLastDentalVisit() != null) txtLastDentalVisit.setText(m.getLastDentalVisit());
         if (m.getDentalHistory() != null) txtDentalHistory.setText(m.getDentalHistory());
         if (m.getDentalProblems() != null) txtDentalProblems.setText(m.getDentalProblems());
-        chkSmoker.setSelected(m.isSmoker());
-        chkAlcohol.setSelected(m.isAlcohol());
-        chkOther.setSelected(m.isOtherHabits());
+        String hygiene = m.getOralHygiene();
+        chkGood.setSelected("Good".equals(hygiene));
+        chkFair.setSelected("Fair".equals(hygiene));
+        chkPoor.setSelected("Poor".equals(hygiene));
         if (m.getDentalMedicalNotes() != null) txtDentalMedicalNotes.setText(m.getDentalMedicalNotes());
     }
 
-    private void showSuccessDialog() {
-        JDialog dialog = new JDialog(this, true);
-        dialog.setUndecorated(true);
-        dialog.setSize(380, 220);
-        dialog.setLocationRelativeTo(this);
-
-        JPanel pnlModal = new JPanel(null);
-        pnlModal.setBackground(Color.WHITE);
-        pnlModal.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(220, 220, 220), 2, true));
-
-        // Green checkmark icon — drawn as a vector circle + glyph (via
-        // IconFactory) rather than an upscaled PNG, so it stays crisp at
-        // any size instead of blurring like a stretched raster icon would.
-        JLabel lblCheckIcon = new JLabel(IconFactory.check(Color.WHITE, 26), SwingConstants.CENTER) {
-            @Override
-            protected void paintComponent(java.awt.Graphics g) {
-                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(0, 200, 83));
-                g2.fill(new java.awt.geom.Ellipse2D.Float(0, 0, getWidth(), getHeight()));
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        lblCheckIcon.setBounds(162, 20, 55, 55);
-        pnlModal.add(lblCheckIcon);
-
-        // Success Text
-        JLabel lblMessage = new JLabel("Patient Added Successfully!");
-        lblMessage.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblMessage.setForeground(new Color(30, 30, 30));
-        lblMessage.setHorizontalAlignment(SwingConstants.CENTER);
-        lblMessage.setBounds(20, 90, 340, 30);
-        pnlModal.add(lblMessage);
-
-        // Done button
-        JButton btnDone = new JButton("Done");
-        btnDone.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnDone.setBackground(new Color(0, 122, 255));
-        btnDone.setForeground(Color.WHITE);
-        btnDone.setBorderPainted(false);
-        btnDone.setFocusPainted(false);
-        btnDone.setBounds(135, 145, 110, 36);
-        btnDone.addActionListener(e -> {
-            dialog.dispose();
-            javax.swing.SwingUtilities.invokeLater(() -> new OS_PM_Grid().setVisible(true));
-            this.dispose();
-        });
-        pnlModal.add(btnDone);
-
-        dialog.getContentPane().add(pnlModal);
-        dialog.setVisible(true);
+    private String selectedOralHygiene() {
+        return chkGood.isSelected() ? "Good" : chkFair.isSelected() ? "Fair" : chkPoor.isSelected() ? "Poor" : "";
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -122,9 +66,9 @@ public class OS_PM_4 extends javax.swing.JFrame {
         txtDentalHistory = new javax.swing.JTextField();
         lblDentalProblems = new javax.swing.JLabel();
         txtDentalProblems = new javax.swing.JTextField();
-        chkSmoker = new javax.swing.JCheckBox();
-        chkAlcohol = new javax.swing.JCheckBox();
-        chkOther = new javax.swing.JCheckBox();
+        chkGood = new javax.swing.JCheckBox();
+        chkFair = new javax.swing.JCheckBox();
+        chkPoor = new javax.swing.JCheckBox();
         lblDentalMedicalNotes = new javax.swing.JLabel();
         txtDentalMedicalNotes = new javax.swing.JTextField();
         btnBack = new javax.swing.JButton();
@@ -205,7 +149,7 @@ public class OS_PM_4 extends javax.swing.JFrame {
         lblSubtitle.setBounds(60, 95, 400, 30);
 
         lblLastDentalVisit.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblLastDentalVisit.setText("Oral Hygine");
+        lblLastDentalVisit.setText("Oral Hygiene");
         cardPanel.add(lblLastDentalVisit);
         lblLastDentalVisit.setBounds(490, 140, 150, 20);
 
@@ -231,17 +175,17 @@ public class OS_PM_4 extends javax.swing.JFrame {
         cardPanel.add(txtDentalProblems);
         txtDentalProblems.setBounds(60, 300, 350, 35);
 
-        chkSmoker.setText("Good");
-        cardPanel.add(chkSmoker);
-        chkSmoker.setBounds(630, 140, 80, 25);
+        chkGood.setText("Good");
+        cardPanel.add(chkGood);
+        chkGood.setBounds(630, 140, 80, 25);
 
-        chkAlcohol.setText("Fair");
-        cardPanel.add(chkAlcohol);
-        chkAlcohol.setBounds(710, 140, 80, 25);
+        chkFair.setText("Fair");
+        cardPanel.add(chkFair);
+        chkFair.setBounds(710, 140, 80, 25);
 
-        chkOther.setText("Poor");
-        cardPanel.add(chkOther);
-        chkOther.setBounds(790, 140, 80, 25);
+        chkPoor.setText("Poor");
+        cardPanel.add(chkPoor);
+        chkPoor.setBounds(790, 140, 80, 25);
 
         lblDentalMedicalNotes.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         lblDentalMedicalNotes.setText("Medical Notes");
@@ -299,20 +243,14 @@ public class OS_PM_4 extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        boolean success = controller.submitFromStep4(
+        controller.submitFromStep4(
                 txtLastDentalVisit.getText(),
                 txtDentalHistory.getText(),
                 txtDentalProblems.getText(),
-                chkSmoker.isSelected(),
-                chkAlcohol.isSelected(),
-                chkOther.isSelected(),
+                selectedOralHygiene(),
                 txtDentalMedicalNotes.getText(),
                 this
         );
-
-        if (success) {
-            showSuccessDialog();
-        }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     public static void main(String args[]) {
@@ -327,9 +265,9 @@ public class OS_PM_4 extends javax.swing.JFrame {
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnSave;
     private javax.swing.JPanel cardPanel;
-    private javax.swing.JCheckBox chkAlcohol;
-    private javax.swing.JCheckBox chkOther;
-    private javax.swing.JCheckBox chkSmoker;
+    private javax.swing.JCheckBox chkFair;
+    private javax.swing.JCheckBox chkGood;
+    private javax.swing.JCheckBox chkPoor;
     private javax.swing.JLabel lblDentalHistory;
     private javax.swing.JLabel lblDentalMedicalNotes;
     private javax.swing.JLabel lblDentalProblems;
