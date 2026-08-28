@@ -23,8 +23,9 @@ public class OS_PM_1 extends javax.swing.JFrame {
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
         populateFieldsFromModel();
         setupPatientId();
+        setupUsername();
         DateTimePicker.attachDate(txtDOB);
-        setSize(1016, 739);
+        setSize(1016, 769);
         setLocationRelativeTo(null);
     }
 
@@ -34,7 +35,6 @@ public class OS_PM_1 extends javax.swing.JFrame {
 
         if ("Mr".equalsIgnoreCase(m.getTitle())) chkMr.setSelected(true);
         else if ("Mrs".equalsIgnoreCase(m.getTitle())) chkMrs.setSelected(true);
-        else if ("Dr".equalsIgnoreCase(m.getTitle())) chkDr.setSelected(true);
 
         if ("Male".equalsIgnoreCase(m.getGender())) chkMale.setSelected(true);
         else if ("Female".equalsIgnoreCase(m.getGender())) chkFemale.setSelected(true);
@@ -42,7 +42,7 @@ public class OS_PM_1 extends javax.swing.JFrame {
         if (m.getFullName() != null) txtFullName.setText(m.getFullName());
         if (m.getDob() != null) txtDOB.setText(m.getDob());
         if (m.getAge() != null) txtAge.setText(m.getAge());
-        if (m.getNicPassport() != null) txtNicPassport.setText(m.getNicPassport());
+        if (m.getNic() != null) txtNic.setText(m.getNic());
     }
 
     /** Patient ID is auto-generated (e.g. "P104") and read-only, same convention as Appointment No / Approval ID. */
@@ -53,6 +53,17 @@ public class OS_PM_1 extends javax.swing.JFrame {
         txtPatientId.setText(existing != null && !existing.trim().isEmpty()
                 ? existing
                 : PatientManagementController.nextPatientId());
+    }
+
+    /**
+     * Carries the username back across a Back-then-Next round trip so it
+     * isn't lost — see {@link PatientManagementController#getPendingUsername()}.
+     */
+    private void setupUsername() {
+        String existing = controller.getPendingUsername();
+        if (existing != null) {
+            txtUsername.setText(existing);
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -72,7 +83,6 @@ public class OS_PM_1 extends javax.swing.JFrame {
         lblTitlePrefix = new javax.swing.JLabel();
         chkMr = new javax.swing.JCheckBox();
         chkMrs = new javax.swing.JCheckBox();
-        chkDr = new javax.swing.JCheckBox();
         lblGender = new javax.swing.JLabel();
         chkMale = new javax.swing.JCheckBox();
         chkFemale = new javax.swing.JCheckBox();
@@ -84,8 +94,11 @@ public class OS_PM_1 extends javax.swing.JFrame {
         txtDOB = new javax.swing.JTextField();
         lblAge = new javax.swing.JLabel();
         txtAge = new javax.swing.JTextField();
-        lblNicPassport = new javax.swing.JLabel();
-        txtNicPassport = new javax.swing.JTextField();
+        lblNic = new javax.swing.JLabel();
+        txtNic = new javax.swing.JTextField();
+        lblUsername = new javax.swing.JLabel();
+        txtUsername = new javax.swing.JTextField();
+        lblUsernameHint = new javax.swing.JLabel();
         btnBack = new javax.swing.JButton();
         btnNext = new javax.swing.JButton();
 
@@ -173,11 +186,7 @@ public class OS_PM_1 extends javax.swing.JFrame {
 
         chkMrs.setText("Mrs");
         cardPanel.add(chkMrs);
-        chkMrs.setBounds(205, 140, 55, 25);
-
-        chkDr.setText("Dr");
-        cardPanel.add(chkDr);
-        chkDr.setBounds(265, 140, 50, 25);
+        chkMrs.setBounds(220, 140, 55, 25);
 
         lblGender.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         lblGender.setText("Gender");
@@ -228,14 +237,29 @@ public class OS_PM_1 extends javax.swing.JFrame {
         cardPanel.add(txtAge);
         txtAge.setBounds(490, 250, 350, 35);
 
-        lblNicPassport.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblNicPassport.setText("NIC/Passport");
-        cardPanel.add(lblNicPassport);
-        lblNicPassport.setBounds(490, 300, 120, 25);
+        lblNic.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblNic.setText("NIC");
+        cardPanel.add(lblNic);
+        lblNic.setBounds(490, 300, 120, 25);
 
-        txtNicPassport.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        cardPanel.add(txtNicPassport);
-        txtNicPassport.setBounds(490, 330, 350, 35);
+        txtNic.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        cardPanel.add(txtNic);
+        txtNic.setBounds(490, 330, 350, 35);
+
+        lblUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblUsername.setText("Username");
+        cardPanel.add(lblUsername);
+        lblUsername.setBounds(60, 380, 150, 25);
+
+        txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        cardPanel.add(txtUsername);
+        txtUsername.setBounds(60, 410, 350, 35);
+
+        lblUsernameHint.setFont(new java.awt.Font("Segoe UI", 2, 12)); // NOI18N
+        lblUsernameHint.setForeground(new java.awt.Color(110, 110, 110));
+        lblUsernameHint.setText("A temporary password will be emailed to this patient automatically.");
+        cardPanel.add(lblUsernameHint);
+        lblUsernameHint.setBounds(60, 448, 500, 20);
 
         btnBack.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBack.setText("Back");
@@ -249,7 +273,7 @@ public class OS_PM_1 extends javax.swing.JFrame {
             }
         });
         cardPanel.add(btnBack);
-        btnBack.setBounds(620, 420, 100, 36);
+        btnBack.setBounds(620, 480, 100, 36);
 
         btnNext.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnNext.setText("Next");
@@ -263,13 +287,13 @@ public class OS_PM_1 extends javax.swing.JFrame {
             }
         });
         cardPanel.add(btnNext);
-        btnNext.setBounds(740, 420, 100, 36);
+        btnNext.setBounds(740, 480, 100, 36);
 
         mainPanel.add(cardPanel);
-        cardPanel.setBounds(50, 160, 900, 490);
+        cardPanel.setBounds(50, 160, 900, 540);
 
         getContentPane().add(mainPanel);
-        mainPanel.setBounds(0, 0, 1000, 700);
+        mainPanel.setBounds(0, 0, 1000, 730);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -282,7 +306,7 @@ public class OS_PM_1 extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextActionPerformed
-        String title = chkMr.isSelected() ? "Mr" : chkMrs.isSelected() ? "Mrs" : chkDr.isSelected() ? "Dr" : "";
+        String title = chkMr.isSelected() ? "Mr" : chkMrs.isSelected() ? "Mrs" : "";
         String gender = chkMale.isSelected() ? "Male" : chkFemale.isSelected() ? "Female" : "";
 
         controller.goNextFromStep1(
@@ -292,7 +316,8 @@ public class OS_PM_1 extends javax.swing.JFrame {
             txtPatientId.getText(),
             txtDOB.getText(),
             txtAge.getText(),
-            txtNicPassport.getText(),
+            txtNic.getText(),
+            txtUsername.getText(),
             this
         );
     }//GEN-LAST:event_btnNextActionPerformed
@@ -309,7 +334,6 @@ public class OS_PM_1 extends javax.swing.JFrame {
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnNext;
     private javax.swing.JPanel cardPanel;
-    private javax.swing.JCheckBox chkDr;
     private javax.swing.JCheckBox chkFemale;
     private javax.swing.JCheckBox chkMale;
     private javax.swing.JCheckBox chkMr;
@@ -319,7 +343,7 @@ public class OS_PM_1 extends javax.swing.JFrame {
     private javax.swing.JLabel lblFullName;
     private javax.swing.JLabel lblGender;
     private javax.swing.JLabel lblLogo;
-    private javax.swing.JLabel lblNicPassport;
+    private javax.swing.JLabel lblNic;
     private javax.swing.JLabel lblPatientId;
     private javax.swing.JLabel lblStep1;
     private javax.swing.JLabel lblStep2;
@@ -328,13 +352,16 @@ public class OS_PM_1 extends javax.swing.JFrame {
     private javax.swing.JLabel lblSubtitle;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblTitlePrefix;
+    private javax.swing.JLabel lblUsername;
+    private javax.swing.JLabel lblUsernameHint;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel navBar;
     private javax.swing.JSeparator sepLine;
     private javax.swing.JTextField txtAge;
     private javax.swing.JTextField txtDOB;
     private javax.swing.JTextField txtFullName;
-    private javax.swing.JTextField txtNicPassport;
+    private javax.swing.JTextField txtNic;
     private javax.swing.JTextField txtPatientId;
+    private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }
