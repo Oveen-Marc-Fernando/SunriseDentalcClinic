@@ -119,23 +119,87 @@ public class OS_AM_Grid extends javax.swing.JFrame {
             int xInCell = e.getX() - cellRect.x;
 
             if (xInCell < 48) { // Edit button
-                JOptionPane.showMessageDialog(OS_AM_Grid.this,
-                        "Edit Appointment: " + appNo, "Edit Appointment",
-                        JOptionPane.INFORMATION_MESSAGE);
+                handleEditAppointment(appNo, modelRow);
             } else { // Delete button
-                int confirmed = JOptionPane.showConfirmDialog(OS_AM_Grid.this,
-                        "Delete appointment: " + appNo + "?", "Delete Appointment",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (confirmed == JOptionPane.YES_OPTION) {
+                IconFactory.showConfirmDialog(OS_AM_Grid.this, "Delete appointment: " + appNo + "?", "Delete", () -> {
                     if (controller.AppointmentManagementController.delete(appNo)) {
                         tableModel.removeRow(modelRow);
                     } else {
-                        JOptionPane.showMessageDialog(OS_AM_Grid.this,
-                                "Couldn't delete appointment " + appNo + " from the database.",
-                                "Delete Failed", JOptionPane.ERROR_MESSAGE);
+                        IconFactory.showErrorDialog(OS_AM_Grid.this,
+                                "Couldn't delete appointment " + appNo + " from the database.", null);
                     }
-                }
+                });
             }
+        }
+
+        /**
+         * A scrollable Edit popup over the columns "appointments" actually
+         * owns — Patient Name, Dentist Name, Treatment Type, Date, Time,
+         * Status. Address/Contact No shown in this grid are read-only,
+         * joined in from the matching patient record (see AppointmentDAO's
+         * BASE_SELECT_SQL) — editing those belongs to Patient Management,
+         * not here, so they're deliberately left out of this popup.
+         */
+        private void handleEditAppointment(String appointmentId, int modelRow) {
+            model.AppointmentModel a = controller.AppointmentManagementController.getById(appointmentId);
+            if (a == null) {
+                IconFactory.showErrorDialog(OS_AM_Grid.this,
+                        "Couldn't find that appointment anymore — try refreshing the grid.", null);
+                return;
+            }
+
+            final int x = 20, w = IconFactory.FORM_DIALOG_CONTENT_WIDTH;
+            JPanel content = new JPanel(null);
+            int y = 10;
+
+            y = IconFactory.addFormSectionHeader(content, "Appointment Details", x, y, w);
+            javax.swing.JTextField txtAppointmentId = new javax.swing.JTextField(a.getAppointmentId());
+            txtAppointmentId.setEditable(false);
+            y = IconFactory.addFormField(content, "Appointment ID:", txtAppointmentId, x, y, w);
+            javax.swing.JTextField txtPatientName = new javax.swing.JTextField(dash(a.getPatientName()));
+            y = IconFactory.addFormField(content, "Patient Name:", txtPatientName, x, y, w);
+            javax.swing.JTextField txtDentistName = new javax.swing.JTextField(dash(a.getDentistName()));
+            y = IconFactory.addFormField(content, "Dentist Name:", txtDentistName, x, y, w);
+            javax.swing.JTextField txtTreatmentType = new javax.swing.JTextField(dash(a.getTreatmentType()));
+            y = IconFactory.addFormField(content, "Treatment Type:", txtTreatmentType, x, y, w);
+            javax.swing.JTextField txtDate = new javax.swing.JTextField(dash(a.getDate()));
+            DateTimePicker.attachDate(txtDate);
+            y = IconFactory.addFormField(content, "Date (yyyy-MM-dd):", txtDate, x, y, w);
+            javax.swing.JTextField txtTime = new javax.swing.JTextField(dash(a.getTime()));
+            DateTimePicker.attachTime(txtTime);
+            y = IconFactory.addFormField(content, "Time (HH:mm):", txtTime, x, y, w);
+            javax.swing.JTextField txtStatus = new javax.swing.JTextField(dash(a.getStatus()));
+            y = IconFactory.addFormField(content, "Status:", txtStatus, x, y, w);
+
+            IconFactory.showScrollableFormDialog(OS_AM_Grid.this, "Edit Appointment", content, y, () -> {
+                if (txtPatientName.getText().trim().isEmpty() || txtDentistName.getText().trim().isEmpty()) {
+                    return "Patient Name and Dentist Name are required.";
+                }
+                java.time.LocalDate date;
+                java.time.LocalTime time;
+                try {
+                    date = java.time.LocalDate.parse(txtDate.getText().trim());
+                    time = java.time.LocalTime.parse(txtTime.getText().trim());
+                } catch (Exception ex) {
+                    return "Date/Time don't look valid — pick them from the calendar/clock icons.";
+                }
+                boolean ok = controller.AppointmentManagementController.updateAppointment(
+                        appointmentId, txtPatientName.getText().trim(), txtDentistName.getText().trim(),
+                        txtTreatmentType.getText().trim(), date, time, txtStatus.getText().trim());
+                if (!ok) {
+                    return "Couldn't save — check the console for details and try again.";
+                }
+                tableModel.setValueAt(txtPatientName.getText().trim(), modelRow, 1);
+                tableModel.setValueAt(txtDentistName.getText().trim(), modelRow, 4);
+                tableModel.setValueAt(txtTreatmentType.getText().trim(), modelRow, 5);
+                tableModel.setValueAt(txtDate.getText().trim() + " / " + txtTime.getText().trim(), modelRow, 6);
+                IconFactory.showSuccessDialog(OS_AM_Grid.this, "Appointment updated successfully!", null);
+                return null;
+            });
+        }
+
+        private String dash(String v) {
+            return v == null || "Nil".equalsIgnoreCase(v.trim()) ? "" : v;
         }
     }
 
@@ -292,14 +356,14 @@ public class OS_AM_Grid extends javax.swing.JFrame {
                 "Appointment ID", "Patient Name", "Address", "Contact No", "Dentist Name", "Treatment Type", "Date & Time", "Action"
             }
         ) {
-            Class[] types = new Class [] {
+            Class<?>[] types = new Class<?>[] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false, false, false, false
             };
 
-            public Class getColumnClass(int columnIndex) {
+            public Class<?> getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
 
