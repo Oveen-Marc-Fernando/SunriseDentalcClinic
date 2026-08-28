@@ -46,7 +46,7 @@ public class AD_APR_SupplyRequest extends javax.swing.JFrame {
 
     private void installTabBar() {
         TabBarPanel tabs = new TabBarPanel(
-                new String[]{"Office Staff expenses", "Dentist Leave", "User Login", "Supply Requests"}, null, 3);
+                new String[]{"Office Staff Approvals", "Dentist Leave", "User Login", "Supply Requests"}, null, 3);
         tabs.setBounds(400, 155, tabs.getPreferredSize().width, 40);
         mainPanel.add(tabs);
         tabs.setOnTabClick(idx -> {
