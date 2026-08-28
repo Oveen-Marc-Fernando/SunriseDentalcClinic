@@ -68,7 +68,7 @@ public class Patient_Dashboard extends javax.swing.JFrame {
         javax.swing.SwingUtilities.invokeLater(() -> {
             IconFactory.showSuccessDialog(this,
                     "Welcome! Please set your own password to finish setting up your account.",
-                    this::openEditProfilePopup);
+                    () -> openEditProfilePopup(true));
         });
     }
 
@@ -126,9 +126,10 @@ public class Patient_Dashboard extends javax.swing.JFrame {
     /**
      * Shared by the navbar profile-menu's "Edit Profile" click and the
      * forced first-login password change ({@link #forcePasswordChangeIfNeeded()})
-     * — same popup, same save handling either way.
+     * — same popup, same save handling, but {@code mandatory} strips the X
+     * button and requires a new password before it'll let the user out.
      */
-    private void openEditProfilePopup() {
+    private void openEditProfilePopup(boolean mandatory) {
         controller.editProfile();
         IconFactory.showEditProfileDialog(Patient_Dashboard.this, controller.getUsername(),
                 (newUsername, newPassword) -> {
@@ -142,7 +143,7 @@ public class Patient_Dashboard extends javax.swing.JFrame {
                     } else {
                         IconFactory.showErrorDialog(Patient_Dashboard.this, result.summarize(), null);
                     }
-                });
+                }, mandatory);
     }
 
     private void bindActions() {
@@ -151,7 +152,7 @@ public class Patient_Dashboard extends javax.swing.JFrame {
         lblUserIcon.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
                 IconFactory.showProfileMenu(Patient_Dashboard.this, lblUserIcon,
-                        Patient_Dashboard.this::openEditProfilePopup,
+                        () -> openEditProfilePopup(false),
                         () -> {
                             controller.logout();
                             AppController.logout(Patient_Dashboard.this);
