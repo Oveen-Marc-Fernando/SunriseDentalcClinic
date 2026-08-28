@@ -453,18 +453,15 @@ public class OS_BM_Service extends javax.swing.JFrame {
             if (names.length() > 0) names.append(", ");
             names.append(row.name);
         }
-        int confirmed = JOptionPane.showConfirmDialog(this,
-                "Remove " + names + " from the price list?", "Delete Service",
-                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (confirmed != JOptionPane.YES_OPTION) return;
-
-        for (ServiceRow row : checked) {
-            controller.removeService(row.name);
-            row.priceField.setText(formatPrice(0));
-            row.checkbox.setSelected(false);
-        }
-        JOptionPane.showMessageDialog(this, "Removed from price list: " + names, "Services Removed",
-                JOptionPane.INFORMATION_MESSAGE);
+        IconFactory.showConfirmDialog(this, "Remove " + names + " from the price list?", "Delete", () -> {
+            for (ServiceRow row : checked) {
+                controller.removeService(row.name);
+                row.priceField.setText(formatPrice(0));
+                row.checkbox.setSelected(false);
+            }
+            JOptionPane.showMessageDialog(this, "Removed from price list: " + names, "Services Removed",
+                    JOptionPane.INFORMATION_MESSAGE);
+        });
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     public static void main(String args[]) {
