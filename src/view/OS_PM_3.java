@@ -34,7 +34,6 @@ public class OS_PM_3 extends javax.swing.JFrame {
         if (m.getMedicalConditions() != null) txtMedicalConditions.setText(m.getMedicalConditions());
         if (m.getCurrentMedications() != null) txtCurrentMedications.setText(m.getCurrentMedications());
         if (m.getPreviousSurgeries() != null) txtPreviousSurgeries.setText(m.getPreviousSurgeries());
-        if (m.getGeneralMedicalNotes() != null) txtMedicalNotes.setText(m.getGeneralMedicalNotes());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -61,8 +60,6 @@ public class OS_PM_3 extends javax.swing.JFrame {
         txtCurrentMedications = new javax.swing.JTextField();
         lblPreviousSurgeries = new javax.swing.JLabel();
         txtPreviousSurgeries = new javax.swing.JTextField();
-        lblMedicalNotes = new javax.swing.JLabel();
-        txtMedicalNotes = new javax.swing.JTextField();
         btnBack = new javax.swing.JButton();
         btnNext = new javax.swing.JButton();
 
@@ -185,15 +182,6 @@ public class OS_PM_3 extends javax.swing.JFrame {
         cardPanel.add(txtPreviousSurgeries);
         txtPreviousSurgeries.setBounds(490, 230, 350, 35);
 
-        lblMedicalNotes.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblMedicalNotes.setText("Medical Notes");
-        cardPanel.add(lblMedicalNotes);
-        lblMedicalNotes.setBounds(490, 275, 120, 20);
-
-        txtMedicalNotes.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        cardPanel.add(txtMedicalNotes);
-        txtMedicalNotes.setBounds(490, 300, 350, 35);
-
         btnBack.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBack.setText("Back");
         btnBack.setBackground(new java.awt.Color(0, 122, 255));
@@ -242,7 +230,6 @@ public class OS_PM_3 extends javax.swing.JFrame {
                 txtMedicalConditions.getText(),
                 txtCurrentMedications.getText(),
                 txtPreviousSurgeries.getText(),
-                txtMedicalNotes.getText(),
                 this
         );
     }//GEN-LAST:event_btnNextActionPerformed
@@ -265,7 +252,6 @@ public class OS_PM_3 extends javax.swing.JFrame {
     private javax.swing.JLabel lblCurrentMedications;
     private javax.swing.JLabel lblLogo;
     private javax.swing.JLabel lblMedicalConditions;
-    private javax.swing.JLabel lblMedicalNotes;
     private javax.swing.JLabel lblPreviousSurgeries;
     private javax.swing.JLabel lblStep1;
     private javax.swing.JLabel lblStep2;
@@ -279,7 +265,6 @@ public class OS_PM_3 extends javax.swing.JFrame {
     private javax.swing.JTextField txtAllergies;
     private javax.swing.JTextField txtCurrentMedications;
     private javax.swing.JTextField txtMedicalConditions;
-    private javax.swing.JTextField txtMedicalNotes;
     private javax.swing.JTextField txtPreviousSurgeries;
     // End of variables declaration//GEN-END:variables
 }
