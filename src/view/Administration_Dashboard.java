@@ -141,7 +141,7 @@ public class Administration_Dashboard extends javax.swing.JFrame {
                                         } else {
                                             IconFactory.showErrorDialog(Administration_Dashboard.this, result.summarize(), null);
                                         }
-                                    });
+                                    }, false);
                         },
                         () -> {
                             controller.logout();
