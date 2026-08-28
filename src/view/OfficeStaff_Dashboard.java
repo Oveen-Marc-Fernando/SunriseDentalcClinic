@@ -112,7 +112,7 @@ public class OfficeStaff_Dashboard extends javax.swing.JFrame {
                                             javax.swing.JOptionPane.showMessageDialog(OfficeStaff_Dashboard.this,
                                                     result.summarize(), "Update Failed", javax.swing.JOptionPane.ERROR_MESSAGE);
                                         }
-                                    });
+                                    }, false);
                         },
                         () -> {
                             controller.logout();
