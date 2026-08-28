@@ -38,6 +38,12 @@ public class OS_AM_2 extends javax.swing.JFrame {
 
     private final String patientName;
 
+    // Set only once Save has actually persisted an appointment this session —
+    // Email/Print stay blocked until then so a receipt is never sent/printed
+    // for something that was never really saved (the same mistake the
+    // billing screen's old standalone Email button used to make).
+    private model.AppointmentModel savedAppointment;
+
     /** Backward-compatible no-arg entry point (e.g. {@code main()}) — submit is disabled without a patient. */
     public OS_AM_2() {
         this(null);
@@ -135,13 +141,13 @@ public class OS_AM_2 extends javax.swing.JFrame {
         lblStep2 = new javax.swing.JLabel();
         lblSubtitle = new javax.swing.JLabel();
         lblDentistName = new javax.swing.JLabel();
-        cmbDentistName = new javax.swing.JComboBox<String>();
+        cmbDentistName = new javax.swing.JComboBox();
         lblAppDate = new javax.swing.JLabel();
-        cmbTreatmentType = new javax.swing.JComboBox<String>();
+        cmbTreatmentType = new javax.swing.JComboBox();
         lblAppTime = new javax.swing.JLabel();
-        cmbAppDate = new javax.swing.JComboBox<String>();
+        cmbAppDate = new javax.swing.JComboBox();
         lblReason = new javax.swing.JLabel();
-        cmbAppTime = new javax.swing.JComboBox<String>();
+        cmbAppTime = new javax.swing.JComboBox();
         btnBack = new javax.swing.JButton();
         btnSubmit = new javax.swing.JButton();
         lblReason3 = new javax.swing.JLabel();
@@ -328,15 +334,33 @@ public class OS_AM_2 extends javax.swing.JFrame {
 
         LocalDate pickedDate = LocalDate.parse((String) date, DATE_DISPLAY);
         LocalTime pickedTime = LocalTime.parse((String) time, TIME_DISPLAY);
-        AppointmentManagementController.bookAppointment(txtAppointmentNo.getText(), patientName, (String) dentist,
-                (String) treatment, pickedDate, pickedTime, "Pending");
+        boolean saved = AppointmentManagementController.bookAppointment(txtAppointmentNo.getText(), patientName,
+                (String) dentist, (String) treatment, pickedDate, pickedTime, "Pending");
 
-        IconFactory.showSuccessDialog(this, "Appointment Added Successfully!", () -> {
+        if (!saved) {
+            IconFactory.showErrorDialog(this,
+                    "Couldn't save this appointment — it may have already been booked, or the database is "
+                    + "unreachable. Check the Appointment Management grid before trying again.", null);
+            return;
+        }
+
+        model.AppointmentModel receipt = new model.AppointmentModel();
+        receipt.setAppointmentId(txtAppointmentNo.getText());
+        receipt.setPatientName(patientName);
+        receipt.setDentistName((String) dentist);
+        receipt.setTreatmentType((String) treatment);
+        receipt.setDate((String) date);
+        receipt.setTime((String) time);
+        receipt.setStatus("Pending");
+        receipt.setRoomNo(txtRoomNo.getText());
+        savedAppointment = receipt; // unlocks the standalone Email/Print buttons below
+
+        new AppointmentPreviewDialog(this, receipt, true, true, () -> {
             dispose();
             javax.swing.SwingUtilities.invokeLater(() -> {
                 new OS_AM_Grid().setVisible(true);
             });
-        });
+        }).setVisible(true);
     }//GEN-LAST:event_btnSubmitActionPerformed
 
     public static void main(String args[]) {
@@ -351,10 +375,10 @@ public class OS_AM_2 extends javax.swing.JFrame {
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnSubmit;
     private javax.swing.JPanel cardPanel;
-    private javax.swing.JComboBox<String> cmbAppDate;
-    private javax.swing.JComboBox<String> cmbAppTime;
-    private javax.swing.JComboBox<String> cmbDentistName;
-    private javax.swing.JComboBox<String> cmbTreatmentType;
+    private javax.swing.JComboBox cmbAppDate;
+    private javax.swing.JComboBox cmbAppTime;
+    private javax.swing.JComboBox cmbDentistName;
+    private javax.swing.JComboBox cmbTreatmentType;
     private javax.swing.JLabel lblAppDate;
     private javax.swing.JLabel lblAppTime;
     private javax.swing.JLabel lblDentistName;
