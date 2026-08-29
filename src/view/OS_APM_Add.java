@@ -1,5 +1,6 @@
 package view;
 
+import controller.AppController;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -246,8 +247,10 @@ public class OS_APM_Add extends javax.swing.JFrame {
             return;
         }
 
+        String submittedBy = AppController.getCurrentUser() != null
+                ? AppController.getCurrentUser().getUsername() : null;
         controller.ApprovalController.submitApproval(
-                txtApprovalId.getText().trim(), desc, txtDate.getText().trim(), amount);
+                txtApprovalId.getText().trim(), desc, txtDate.getText().trim(), amount, submittedBy);
 
         showSuccessModal();
     }//GEN-LAST:event_btnSendActionPerformed
