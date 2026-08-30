@@ -468,7 +468,7 @@ public class OS_BM_Grid extends javax.swing.JFrame {
         btnAddServices.setBackground(new java.awt.Color(255, 193, 7));
         btnAddServices.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAddServices.setForeground(new java.awt.Color(255, 255, 255));
-        btnAddServices.setText("Add Services");
+        btnAddServices.setText("Services");
         btnAddServices.setBorderPainted(false);
         btnAddServices.setFocusPainted(false);
         btnAddServices.addActionListener(new java.awt.event.ActionListener() {
@@ -537,14 +537,14 @@ public class OS_BM_Grid extends javax.swing.JFrame {
                 "Billing ID", "Patient Name", "Total Amount", "Print", "Actions"
             }
         ) {
-            Class<?>[] types = new Class<?>[] {
+            Class[] types = new Class [] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false
             };
 
-            public Class<?> getColumnClass(int columnIndex) {
+            public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
 
