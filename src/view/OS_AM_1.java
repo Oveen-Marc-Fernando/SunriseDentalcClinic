@@ -38,15 +38,15 @@ public class OS_AM_1 extends javax.swing.JFrame {
         }
 
         lockField(txtPatientId);
-        lockField(txtNicPassport);
-        lockField(txtPatientPhoto);
+        lockField(txtAddress);
+        lockField(txtContactNo);
 
         cmbFullName.addActionListener(e -> {
             int index = cmbFullName.getSelectedIndex() - 1; // -1 to skip the placeholder row
             if (index < 0 || index >= patients.size()) {
                 txtPatientId.setText("");
-                txtNicPassport.setText("");
-                txtPatientPhoto.setText("");
+                txtAddress.setText("");
+                txtContactNo.setText("");
                 return;
             }
             model.PatientModel patient = patients.get(index);
@@ -55,8 +55,8 @@ public class OS_AM_1 extends javax.swing.JFrame {
             if (patient.getCity() != null && !patient.getCity().isEmpty()) {
                 address += (address.isEmpty() ? "" : ", ") + patient.getCity();
             }
-            txtNicPassport.setText(address);
-            txtPatientPhoto.setText(patient.getMobileNo());
+            txtAddress.setText(address);
+            txtContactNo.setText(patient.getMobileNo());
         });
     }
 
@@ -81,10 +81,10 @@ public class OS_AM_1 extends javax.swing.JFrame {
         cmbFullName = new javax.swing.JComboBox<String>();
         lblPatientId = new javax.swing.JLabel();
         txtPatientId = new javax.swing.JTextField();
-        lblNicPassport = new javax.swing.JLabel();
-        txtNicPassport = new javax.swing.JTextField();
-        lblPatientPhoto = new javax.swing.JLabel();
-        txtPatientPhoto = new javax.swing.JTextField();
+        lblAddress = new javax.swing.JLabel();
+        txtAddress = new javax.swing.JTextField();
+        lblContactNo = new javax.swing.JLabel();
+        txtContactNo = new javax.swing.JTextField();
         btnBack = new javax.swing.JButton();
         btnNext = new javax.swing.JButton();
 
@@ -161,23 +161,23 @@ public class OS_AM_1 extends javax.swing.JFrame {
         cardPanel.add(txtPatientId);
         txtPatientId.setBounds(60, 270, 350, 35);
 
-        lblNicPassport.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblNicPassport.setText("Address");
-        cardPanel.add(lblNicPassport);
-        lblNicPassport.setBounds(490, 160, 120, 25);
+        lblAddress.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblAddress.setText("Address");
+        cardPanel.add(lblAddress);
+        lblAddress.setBounds(490, 160, 120, 25);
 
-        txtNicPassport.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        cardPanel.add(txtNicPassport);
-        txtNicPassport.setBounds(490, 190, 350, 35);
+        txtAddress.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        cardPanel.add(txtAddress);
+        txtAddress.setBounds(490, 190, 350, 35);
 
-        lblPatientPhoto.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblPatientPhoto.setText("Contact No");
-        cardPanel.add(lblPatientPhoto);
-        lblPatientPhoto.setBounds(490, 240, 150, 25);
+        lblContactNo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblContactNo.setText("Contact No");
+        cardPanel.add(lblContactNo);
+        lblContactNo.setBounds(490, 240, 150, 25);
 
-        txtPatientPhoto.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        cardPanel.add(txtPatientPhoto);
-        txtPatientPhoto.setBounds(490, 270, 350, 35);
+        txtContactNo.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        cardPanel.add(txtContactNo);
+        txtContactNo.setBounds(490, 270, 350, 35);
 
         btnBack.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBack.setText("Back");
@@ -232,9 +232,11 @@ public class OS_AM_1 extends javax.swing.JFrame {
             return;
         }
         String patientName = selected.toString();
+        String address = txtAddress.getText();
+        String contactNo = txtContactNo.getText();
         dispose();
         javax.swing.SwingUtilities.invokeLater(() -> {
-            new OS_AM_2(patientName).setVisible(true);
+            new OS_AM_2(patientName, address, contactNo).setVisible(true);
         });
     }//GEN-LAST:event_btnNextActionPerformed
 
@@ -253,9 +255,9 @@ public class OS_AM_1 extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cmbFullName;
     private javax.swing.JLabel lblFullName;
     private javax.swing.JLabel lblLogo;
-    private javax.swing.JLabel lblNicPassport;
+    private javax.swing.JLabel lblAddress;
     private javax.swing.JLabel lblPatientId;
-    private javax.swing.JLabel lblPatientPhoto;
+    private javax.swing.JLabel lblContactNo;
     private javax.swing.JLabel lblStep1;
     private javax.swing.JLabel lblStep2;
     private javax.swing.JLabel lblSubtitle;
@@ -263,8 +265,8 @@ public class OS_AM_1 extends javax.swing.JFrame {
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel navBar;
     private javax.swing.JSeparator sepLine;
-    private javax.swing.JTextField txtNicPassport;
+    private javax.swing.JTextField txtAddress;
     private javax.swing.JTextField txtPatientId;
-    private javax.swing.JTextField txtPatientPhoto;
+    private javax.swing.JTextField txtContactNo;
     // End of variables declaration//GEN-END:variables
 }
