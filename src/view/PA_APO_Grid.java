@@ -190,7 +190,6 @@ public class PA_APO_Grid extends javax.swing.JFrame {
         lblLogo = new javax.swing.JLabel();
         lblUserIcon = new javax.swing.JLabel();
         lblTitle = new javax.swing.JLabel();
-        btnAdd = new javax.swing.JButton();
         btnBack = new javax.swing.JButton();
         pnlSearchWrap = new javax.swing.JPanel();
         txtSearch = new javax.swing.JTextField();
@@ -227,20 +226,6 @@ public class PA_APO_Grid extends javax.swing.JFrame {
         lblTitle.setText("My Appoinments");
         mainPanel.add(lblTitle);
         lblTitle.setBounds(50, 110, 420, 40);
-
-        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnAdd.setText("Add");
-        btnAdd.setBackground(new java.awt.Color(231, 115, 36));
-        btnAdd.setForeground(new java.awt.Color(255, 255, 255));
-        btnAdd.setBorderPainted(false);
-        btnAdd.setFocusPainted(false);
-        btnAdd.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddActionPerformed(evt);
-            }
-        });
-        mainPanel.add(btnAdd);
-        btnAdd.setBounds(820, 110, 100, 36);
 
         btnBack.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBack.setText("Back");
@@ -330,13 +315,6 @@ public class PA_APO_Grid extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        dispose();
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            new PA_APO_Add(currentUser).setVisible(true);
-        });
-    }//GEN-LAST:event_btnAddActionPerformed
-
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         dispose();
         javax.swing.SwingUtilities.invokeLater(() -> {
@@ -349,7 +327,6 @@ public class PA_APO_Grid extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnBack;
     private javax.swing.JLabel lblLogo;
     private javax.swing.JLabel lblSearchIcon;
