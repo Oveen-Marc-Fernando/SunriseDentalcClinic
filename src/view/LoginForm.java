@@ -37,7 +37,6 @@ public class LoginForm extends javax.swing.JFrame {
 
     private static final java.awt.Color EYE_COLOR = new java.awt.Color(90, 90, 90);
     private static final int EYE_SIZE = 16;
-    private static final java.awt.Color CONNECT_ICON_COLOR = new java.awt.Color(120, 120, 120);
 
     private boolean passwordVisible = false;
 
@@ -70,11 +69,11 @@ public class LoginForm extends javax.swing.JFrame {
         btnShowHide.setText(null);
         btnShowHide.setIcon(IconFactory.eye(EYE_COLOR, EYE_SIZE)); // crisp vector eye — replaces "Show"/"Hide" text that was ellipsis-truncated in this button's narrow 35px width
         IconFactory.roundCorners(pnlLeft, 28);
-        lblLeftLogo.setIcon(IconFactory.brandLogoOnColor(190, 40));
-        lblIconMail.setIcon(IconFactory.mail(CONNECT_ICON_COLOR, 22));
-        lblIconInstagram.setIcon(IconFactory.instagram(CONNECT_ICON_COLOR, 22));
-        lblIconTiktok.setIcon(IconFactory.tiktok(CONNECT_ICON_COLOR, 22));
-        lblIconWhatsapp.setIcon(IconFactory.whatsapp(CONNECT_ICON_COLOR, 22));
+        lblLeftLogo.setIcon(IconFactory.brandLogo(130, 40)); // 130x40 matches this app's standard logo size everywhere else
+        lblIconMail.setIcon(IconFactory.mailBrand(22));
+        lblIconInstagram.setIcon(IconFactory.instagramBrand(22));
+        lblIconTiktok.setIcon(IconFactory.tiktokBrand(22));
+        lblIconWhatsapp.setIcon(IconFactory.whatsappBrand(22));
         setSize(640, 460);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -235,8 +234,7 @@ public class LoginForm extends javax.swing.JFrame {
         panel.setBackground(new java.awt.Color(255, 255, 255));
         panel.setLayout(null);
 
-        lblCloseBtn.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        lblCloseBtn.setForeground(new java.awt.Color(140, 140, 140));
+        lblCloseBtn.setFont(new java.awt.Font("Segoe UI", 1, 22)); // NOI18N
         lblCloseBtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblCloseBtn.setText("X");
         lblCloseBtn.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -245,14 +243,14 @@ public class LoginForm extends javax.swing.JFrame {
             }
         });
         panel.add(lblCloseBtn);
-        lblCloseBtn.setBounds(598, 14, 26, 26);
+        lblCloseBtn.setBounds(594, 12, 30, 30);
 
-        pnlLeft.setBackground(new java.awt.Color(231, 115, 36));
+        pnlLeft.setBackground(new java.awt.Color(0, 0, 0));
         pnlLeft.setLayout(null);
 
-        lblLeftLogo.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        lblLeftLogo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         pnlLeft.add(lblLeftLogo);
-        lblLeftLogo.setBounds(20, 24, 190, 40);
+        lblLeftLogo.setBounds(50, 90, 130, 40);
 
         lblWelcome.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         lblWelcome.setForeground(new java.awt.Color(255, 255, 255));
@@ -266,9 +264,9 @@ public class LoginForm extends javax.swing.JFrame {
         pnlLeft.add(lblWelcomeSub);
         lblWelcomeSub.setBounds(30, 230, 200, 44);
 
-        btnRegisterLeft.setBackground(new java.awt.Color(255, 255, 255));
+        btnRegisterLeft.setBackground(new java.awt.Color(231, 115, 36));
         btnRegisterLeft.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnRegisterLeft.setForeground(new java.awt.Color(231, 115, 36));
+        btnRegisterLeft.setForeground(new java.awt.Color(255, 255, 255));
         btnRegisterLeft.setText("Register");
         btnRegisterLeft.setBorderPainted(false);
         btnRegisterLeft.setFocusPainted(false);
@@ -282,11 +280,11 @@ public class LoginForm extends javax.swing.JFrame {
         lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblTitle.setText("Login");
         panel.add(lblTitle);
-        lblTitle.setBounds(300, 48, 290, 44);
+        lblTitle.setBounds(400, 50, 130, 44);
 
         lblUsername.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblUsername.setForeground(new java.awt.Color(90, 90, 90));
-        lblUsername.setText("Username or Email");
+        lblUsername.setText("Username");
         panel.add(lblUsername);
         lblUsername.setBounds(300, 112, 200, 20);
 
@@ -328,7 +326,7 @@ public class LoginForm extends javax.swing.JFrame {
             }
         });
         panel.add(chkRememberMe);
-        chkRememberMe.setBounds(300, 260, 160, 24);
+        chkRememberMe.setBounds(380, 260, 160, 24);
 
         btnLogin.setBackground(new java.awt.Color(231, 115, 36));
         btnLogin.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
