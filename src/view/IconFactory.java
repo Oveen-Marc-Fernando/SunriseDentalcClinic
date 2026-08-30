@@ -8,9 +8,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Container;
 import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -96,6 +98,27 @@ public final class IconFactory {
         });
     }
 
+    /** Map-pin (location marker) glyph – teardrop body with a hollow center dot – used for "Find Us"/address contexts. */
+    public static Icon pin(Color color, int size) {
+        return new VectorIcon(size, size, color, (g2, w, h) -> {
+            float cx = w * 0.5f;
+            float headR = w * 0.32f;
+            float headCy = h * 0.34f;
+
+            GeneralPath teardrop = new GeneralPath();
+            teardrop.moveTo(cx, h * 0.94f); // the pointed tip resting on the map
+            teardrop.curveTo(cx - headR * 1.15f, h * 0.62f, cx - headR, headCy + headR * 0.4f, cx - headR, headCy);
+            teardrop.curveTo(cx - headR, headCy - headR * 1.28f, cx + headR, headCy - headR * 1.28f, cx + headR, headCy);
+            teardrop.curveTo(cx + headR, headCy + headR * 0.4f, cx + headR * 1.15f, h * 0.62f, cx, h * 0.94f);
+            teardrop.closePath();
+            g2.fill(teardrop);
+
+            g2.setColor(Color.WHITE);
+            float holeR = headR * 0.42f;
+            g2.fill(new Ellipse2D.Float(cx - holeR, headCy - holeR, holeR * 2, holeR * 2));
+        });
+    }
+
     /** Checkmark glyph – used for "Approve" / active-status. */
     public static Icon check(Color color, int size) {
         return new VectorIcon(size, size, color, (g2, w, h) -> {
@@ -108,7 +131,12 @@ public final class IconFactory {
         });
     }
 
-    /** Envelope glyph – used for "Email" actions / recipient-confirmation dialogs. */
+    /**
+     * Envelope glyph in this app's own brand orange – used for "Email"
+     * actions / recipient-confirmation dialogs, and general (non-social)
+     * mail contexts where a caller wants a specific tint instead of a fixed
+     * brand color.
+     */
     public static Icon mail(Color color, int size) {
         return new VectorIcon(size, size, color, (g2, w, h) -> {
             g2.setStroke(new BasicStroke(Math.max(1.4f, w * 0.09f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -118,6 +146,37 @@ public final class IconFactory {
             flap.moveTo(w * 0.12f, h * 0.26f);
             flap.lineTo(w * 0.5f, h * 0.55f);
             flap.lineTo(w * 0.88f, h * 0.26f);
+            g2.draw(flap);
+        });
+    }
+
+    /**
+     * True-color envelope – the familiar Mail-app look: a blue gradient
+     * rounded-square badge with a solid white envelope and a blue crease
+     * line for the flap, for "connect with" rows sitting among real
+     * social-brand-colored icons (LoginForm) where a flat grey outline
+     * would look out of place.
+     */
+    public static Icon mailBrand(int size) {
+        return new VectorIcon(size, size, Color.WHITE, (g2, w, h) -> {
+            RoundRectangle2D badge = new RoundRectangle2D.Float(0, 0, w, h, w * 0.30f, w * 0.30f);
+            LinearGradientPaint gradient = new LinearGradientPaint(
+                    new Point2D.Float(0, 0), new Point2D.Float(0, h),
+                    new float[]{0f, 1f},
+                    new Color[]{new Color(0x0A, 0x5C, 0xF5), new Color(0x3E, 0xC6, 0xF7)});
+            g2.setPaint(gradient);
+            g2.fill(badge);
+
+            RoundRectangle2D envelope = new RoundRectangle2D.Float(w * 0.14f, h * 0.30f, w * 0.72f, h * 0.42f, w * 0.05f, w * 0.05f);
+            g2.setColor(Color.WHITE);
+            g2.fill(envelope);
+
+            g2.setColor(new Color(0x0A, 0x5C, 0xF5));
+            g2.setStroke(new BasicStroke(Math.max(1.1f, w * 0.045f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            GeneralPath flap = new GeneralPath();
+            flap.moveTo(w * 0.16f, h * 0.32f);
+            flap.lineTo(w * 0.5f, h * 0.56f);
+            flap.lineTo(w * 0.84f, h * 0.32f);
             g2.draw(flap);
         });
     }
@@ -134,6 +193,34 @@ public final class IconFactory {
         });
     }
 
+    /**
+     * True-color Instagram glyph – the real diagonal yellow→orange→magenta→
+     * purple gradient badge with a white camera-lens ring and flash dot,
+     * instead of a flat single-tint outline.
+     */
+    public static Icon instagramBrand(int size) {
+        return new VectorIcon(size, size, Color.WHITE, (g2, w, h) -> {
+            RoundRectangle2D badge = new RoundRectangle2D.Float(0, 0, w, h, w * 0.32f, w * 0.32f);
+            LinearGradientPaint gradient = new LinearGradientPaint(
+                    new Point2D.Float(0, h), new Point2D.Float(w, 0),
+                    new float[]{0f, 0.35f, 0.65f, 1f},
+                    new Color[]{
+                        new Color(0xFE, 0xDA, 0x75), new Color(0xD6, 0x29, 0x76),
+                        new Color(0x96, 0x2F, 0xBF), new Color(0x4F, 0x5B, 0xD5)
+                    });
+            g2.setPaint(gradient);
+            g2.fill(badge);
+
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(Math.max(1.2f, w * 0.075f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(new RoundRectangle2D.Float(w * 0.16f, h * 0.16f, w * 0.68f, h * 0.68f, w * 0.22f, w * 0.22f));
+            float lensD = w * 0.34f;
+            g2.draw(new Ellipse2D.Float((w - lensD) / 2f, (h - lensD) / 2f, lensD, lensD));
+            float dotD = w * 0.08f;
+            g2.fill(new Ellipse2D.Float(w * 0.66f, h * 0.24f, dotD, dotD));
+        });
+    }
+
     /** Simplified TikTok glyph (musical note, the shape at the heart of the real logo) – "connect with" row on LoginForm. */
     public static Icon tiktok(Color color, int size) {
         return new VectorIcon(size, size, color, (g2, w, h) -> {
@@ -146,6 +233,39 @@ public final class IconFactory {
             float noteD = w * 0.24f;
             g2.fill(new Ellipse2D.Float(w * 0.18f, h * 0.60f, noteD, noteD));
         });
+    }
+
+    /**
+     * True-color TikTok glyph – the same note mark drawn three times with a
+     * slight offset in the brand's cyan and pink, with black on top, the
+     * trademark "glitch" layering of the real logo, on a black rounded
+     * badge instead of a flat single-tint outline.
+     */
+    public static Icon tiktokBrand(int size) {
+        return new VectorIcon(size, size, Color.WHITE, (g2, w, h) -> {
+            g2.setColor(Color.BLACK);
+            g2.fill(new RoundRectangle2D.Float(0, 0, w, h, w * 0.32f, w * 0.32f));
+
+            float offset = w * 0.045f;
+            g2.setStroke(new BasicStroke(Math.max(1.5f, w * 0.11f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            drawTiktokNote(g2, w, h, offset, offset, new Color(0x25, 0xF4, 0xEE));
+            drawTiktokNote(g2, w, h, -offset, -offset, new Color(0xFE, 0x2C, 0x55));
+            drawTiktokNote(g2, w, h, 0, 0, Color.WHITE);
+        });
+    }
+
+    private static void drawTiktokNote(Graphics2D g2, float w, float h, float dx, float dy, Color color) {
+        g2.setColor(color);
+        GeneralPath stem = new GeneralPath();
+        stem.moveTo(w * 0.44f + dx, h * 0.20f + dy);
+        stem.lineTo(w * 0.44f + dx, h * 0.66f + dy);
+        g2.draw(stem);
+        GeneralPath flag = new GeneralPath();
+        flag.moveTo(w * 0.44f + dx, h * 0.20f + dy);
+        flag.curveTo(w * 0.60f + dx, h * 0.20f + dy, w * 0.72f + dx, h * 0.32f + dy, w * 0.74f + dx, h * 0.44f + dy);
+        g2.draw(flag);
+        float noteD = w * 0.22f;
+        g2.fill(new Ellipse2D.Float(w * 0.22f + dx, h * 0.58f + dy, noteD, noteD));
     }
 
     /** Simplified WhatsApp glyph (chat-bubble outline with a phone-handset silhouette) – "connect with" row on LoginForm. */
@@ -170,6 +290,43 @@ public final class IconFactory {
             handset.curveTo(w * 0.66f, h * 0.68f, w * 0.56f, h * 0.68f, w * 0.48f, h * 0.62f);
             handset.curveTo(w * 0.40f, h * 0.56f, w * 0.36f, h * 0.46f, w * 0.38f, h * 0.36f);
             g2.draw(handset);
+        });
+    }
+
+    /**
+     * True-color WhatsApp glyph – the real brand green rounded-square badge
+     * with a white speech-bubble ring (tail notch included) and a solid
+     * white phone-handset silhouette, instead of a flat single-tint
+     * outline bubble.
+     */
+    public static Icon whatsappBrand(int size) {
+        return new VectorIcon(size, size, Color.WHITE, (g2, w, h) -> {
+            g2.setColor(new Color(0x25, 0xD3, 0x66));
+            g2.fill(new RoundRectangle2D.Float(0, 0, w, h, w * 0.30f, w * 0.30f));
+
+            g2.setColor(Color.WHITE);
+            float bubbleD = w * 0.62f;
+            float bubbleX = (w - bubbleD) / 2f;
+            float bubbleY = h * 0.16f;
+            g2.setStroke(new BasicStroke(Math.max(1.3f, w * 0.075f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(new Ellipse2D.Float(bubbleX, bubbleY, bubbleD, bubbleD));
+            GeneralPath tail = new GeneralPath();
+            tail.moveTo(w * 0.34f, h * 0.68f);
+            tail.lineTo(w * 0.24f, h * 0.84f);
+            tail.lineTo(w * 0.44f, h * 0.72f);
+            tail.closePath();
+            g2.fill(tail);
+
+            GeneralPath handset = new GeneralPath();
+            handset.moveTo(w * 0.38f, h * 0.34f);
+            handset.curveTo(w * 0.38f, h * 0.28f, w * 0.46f, h * 0.28f, w * 0.46f, h * 0.34f);
+            handset.curveTo(w * 0.46f, h * 0.40f, w * 0.40f, h * 0.38f, w * 0.42f, h * 0.46f);
+            handset.curveTo(w * 0.46f, h * 0.56f, w * 0.52f, h * 0.60f, w * 0.60f, h * 0.56f);
+            handset.curveTo(w * 0.68f, h * 0.52f, w * 0.62f, h * 0.60f, w * 0.62f, h * 0.62f);
+            handset.curveTo(w * 0.62f, h * 0.68f, w * 0.52f, h * 0.68f, w * 0.44f, h * 0.62f);
+            handset.curveTo(w * 0.36f, h * 0.54f, w * 0.34f, h * 0.44f, w * 0.38f, h * 0.34f);
+            handset.closePath();
+            g2.fill(handset);
         });
     }
 
@@ -389,6 +546,25 @@ public final class IconFactory {
 
             float bodyD = w * 0.82f;
             g2.draw(new Ellipse2D.Float((w - bodyD) / 2f, h * 0.62f, bodyD, bodyD));
+        });
+    }
+
+    /** Simple molar-tooth silhouette — used as the icon on every card of Public_Dashboard's Services section. */
+    public static Icon tooth(Color color, int size) {
+        return new VectorIcon(size, size, color, (g2, w, h) -> {
+            g2.setStroke(new BasicStroke(Math.max(1.5f, w * 0.09f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            GeneralPath p = new GeneralPath();
+            p.moveTo(w * 0.50f, h * 0.12f);
+            p.curveTo(w * 0.20f, h * 0.10f, w * 0.14f, h * 0.30f, w * 0.20f, h * 0.48f);
+            p.curveTo(w * 0.24f, h * 0.58f, w * 0.22f, h * 0.66f, w * 0.28f, h * 0.86f);
+            p.curveTo(w * 0.31f, h * 0.94f, w * 0.38f, h * 0.92f, w * 0.40f, h * 0.80f);
+            p.curveTo(w * 0.42f, h * 0.68f, w * 0.46f, h * 0.68f, w * 0.50f, h * 0.68f);
+            p.curveTo(w * 0.54f, h * 0.68f, w * 0.58f, h * 0.68f, w * 0.60f, h * 0.80f);
+            p.curveTo(w * 0.62f, h * 0.92f, w * 0.69f, h * 0.94f, w * 0.72f, h * 0.86f);
+            p.curveTo(w * 0.78f, h * 0.66f, w * 0.76f, h * 0.58f, w * 0.80f, h * 0.48f);
+            p.curveTo(w * 0.86f, h * 0.30f, w * 0.80f, h * 0.10f, w * 0.50f, h * 0.12f);
+            p.closePath();
+            g2.draw(p);
         });
     }
 
@@ -663,18 +839,6 @@ public final class IconFactory {
      */
     public static Icon brandLogo(int width, int height) {
         return brandLogo(width, height, new Color(231, 115, 36)); // this app's established brand orange
-    }
-
-    /**
-     * Same wordmark as {@link #brandLogo(int, int)}, but with the "DENTAL
-     * CLINIC" subtitle drawn in white instead of brand-orange — the default
-     * orange subtitle is illegible on this app's own orange surfaces (e.g.
-     * LoginForm's left panel), so callers placing the logo on a colored
-     * background (anything that isn't navBar's black) should use this
-     * instead.
-     */
-    public static Icon brandLogoOnColor(int width, int height) {
-        return brandLogo(width, height, Color.WHITE);
     }
 
     private static Icon brandLogo(int width, int height, Color subtitleColor) {
