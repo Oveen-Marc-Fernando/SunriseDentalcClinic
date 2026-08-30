@@ -37,6 +37,11 @@ public class OS_AM_2 extends javax.swing.JFrame {
     private static final int DATES_TO_OFFER = 4;
 
     private final String patientName;
+    // Carried over from OS_AM_1 — the selected patient's Address/Contact No
+    // at the moment this wizard was started, saved permanently with the
+    // appointment once Submit is clicked (see AppointmentDAO#insert).
+    private final String address;
+    private final String contactNo;
 
     // Set only once Save has actually persisted an appointment this session —
     // Email/Print stay blocked until then so a receipt is never sent/printed
@@ -46,11 +51,13 @@ public class OS_AM_2 extends javax.swing.JFrame {
 
     /** Backward-compatible no-arg entry point (e.g. {@code main()}) — submit is disabled without a patient. */
     public OS_AM_2() {
-        this(null);
+        this(null, null, null);
     }
 
-    public OS_AM_2(String patientName) {
+    public OS_AM_2(String patientName, String address, String contactNo) {
         this.patientName = patientName;
+        this.address = address;
+        this.contactNo = contactNo;
         initComponents();
         lblLogo.setIcon(IconFactory.brandLogo(130, 40)); // crisp vector wordmark (fixes blurry 130x40 raster logo at HiDPI)
         IconFactory.roundCorners(navBar, 30); // fully rounded pill — radius = half the bar's height
@@ -335,7 +342,7 @@ public class OS_AM_2 extends javax.swing.JFrame {
         LocalDate pickedDate = LocalDate.parse((String) date, DATE_DISPLAY);
         LocalTime pickedTime = LocalTime.parse((String) time, TIME_DISPLAY);
         boolean saved = AppointmentManagementController.bookAppointment(txtAppointmentNo.getText(), patientName,
-                (String) dentist, (String) treatment, pickedDate, pickedTime, "Pending");
+                (String) dentist, (String) treatment, pickedDate, pickedTime, "Pending", address, contactNo);
 
         if (!saved) {
             IconFactory.showErrorDialog(this,
@@ -352,6 +359,8 @@ public class OS_AM_2 extends javax.swing.JFrame {
         receipt.setDate((String) date);
         receipt.setTime((String) time);
         receipt.setStatus("Pending");
+        receipt.setAddress(address);
+        receipt.setContactNo(contactNo);
         receipt.setRoomNo(txtRoomNo.getText());
         savedAppointment = receipt; // unlocks the standalone Email/Print buttons below
 
