@@ -398,3 +398,23 @@ INSERT INTO approvals (approval_id, description, remarks, approval_date, amount,
     ('APR103', 'Teeth Whitening',      'Client request',   '2026-08-06', 0, 'Approved'),
     ('APR104', 'Crown fitting',        'Dentist signoff',  '2026-08-05', 0, 'Approved'),
     ('APR105', 'Filling & Cleaning',   'Regular checkup',  '2026-08-04', 0, 'Declined');
+
+-- =============================================================================
+-- cookie_consents — one row per "Accept All" click on the Public Dashboard's
+-- cookie-consent banner (Public_Dashboard.showCookieConsentBanner). Declining
+-- isn't logged here — only accepted consents, matching Administration's
+-- read-only "Cookies" screen (AD_OP_Cookies). device_id is a random ID
+-- generated once per installation and cached locally (see
+-- util.DeviceIdentity), standing in for a browser's own persistent
+-- cookie/device fingerprint since this is a desktop app, not a website;
+-- user_agent is likewise a Java/OS version string standing in for a
+-- browser's User-Agent header.
+-- =============================================================================
+DROP TABLE IF EXISTS cookie_consents;
+CREATE TABLE cookie_consents (
+    consent_id      INT           NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    device_id       VARCHAR(64)   NOT NULL,
+    ip_address      VARCHAR(45),
+    user_agent      VARCHAR(255),
+    first_seen      DATETIME      NOT NULL
+) ENGINE=InnoDB;
