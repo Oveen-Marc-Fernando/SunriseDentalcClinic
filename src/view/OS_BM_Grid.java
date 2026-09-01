@@ -304,7 +304,7 @@ public class OS_BM_Grid extends javax.swing.JFrame {
                     "Bill Not Found", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        new BillPreviewDialog(this, bill, false, null).setVisible(true);
+        new BillPreviewDialog(this, bill, false, true, null).setVisible(true);
     }
 
     private void populateSampleData() {

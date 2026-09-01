@@ -3,11 +3,14 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.print.PrinterJob;
 import java.io.ByteArrayInputStream;
@@ -86,8 +89,22 @@ public class AppointmentPreviewDialog extends JDialog {
             content.add(buildSuccessBanner(), BorderLayout.NORTH);
         }
         content.add(buildPreviewPanel(), BorderLayout.CENTER);
-        content.add(buildButtonBar(onClose, showEmailButton), BorderLayout.SOUTH);
+        content.add(buildButtonBar(showEmailButton), BorderLayout.SOUTH);
         setContentPane(content);
+
+        // The bottom bar's own Close button is gone now (repurposed into
+        // View — see buildButtonBar) — the window's native title-bar X is
+        // the only way to close this dialog, so it's what has to fire
+        // onClose now (e.g. navigating OS_AM_2 back to the grid).
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if (onClose != null) {
+                    onClose.run();
+                }
+            }
+        });
     }
 
     private JComponent buildSuccessBanner() {
@@ -95,15 +112,10 @@ public class AppointmentPreviewDialog extends JDialog {
         banner.setBackground(new Color(0, 200, 83));
         banner.setPreferredSize(new Dimension(0, 50));
 
-        JLabel checkmark = new JLabel("✓");
-        checkmark.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        checkmark.setForeground(Color.WHITE);
-
         JLabel text = new JLabel("Appointment Booked Successfully!");
         text.setFont(new Font("Segoe UI", Font.BOLD, 16));
         text.setForeground(Color.WHITE);
 
-        banner.add(checkmark);
         banner.add(text);
         return banner;
     }
@@ -137,7 +149,7 @@ public class AppointmentPreviewDialog extends JDialog {
         return scroll;
     }
 
-    private JComponent buildButtonBar(Runnable onClose, boolean showEmail) {
+    private JComponent buildButtonBar(boolean showEmail) {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12));
         bar.setBackground(new Color(248, 249, 250));
         bar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 220, 220)));
@@ -156,12 +168,13 @@ public class AppointmentPreviewDialog extends JDialog {
             bar.add(btnEmail);
         }
 
-        JButton btnClose = styledButton("Close", new Color(100, 100, 100));
-        btnClose.addActionListener(e -> {
-            dispose();
-            if (onClose != null) onClose.run();
-        });
-        bar.add(btnClose);
+        // Was "Close" — redundant with the dialog's own title-bar X, so it's
+        // repurposed into View instead: opens the receipt straight in the
+        // system's default browser. Doesn't close the dialog itself; the X
+        // still does that (see the windowClosed listener in the constructor).
+        JButton btnView = styledButton("View", new Color(100, 100, 100));
+        btnView.addActionListener(e -> viewInBrowser());
+        bar.add(btnView);
 
         return bar;
     }
@@ -176,6 +189,35 @@ public class AppointmentPreviewDialog extends JDialog {
         b.setPreferredSize(new Dimension(120, 38));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return b;
+    }
+
+    /**
+     * Writes the generated PDF to a temp file and opens it straight in the
+     * system's default web browser (not just the OS's default PDF handler —
+     * {@link Desktop#browse} specifically launches a browser), so office
+     * staff can glance at the full-size receipt without saving a file
+     * anywhere first. The temp file is marked delete-on-exit rather than
+     * cleaned up immediately, since the browser needs it to still exist
+     * after this method returns.
+     */
+    private void viewInBrowser() {
+        if (pdfBytes == null) {
+            JOptionPane.showMessageDialog(this, "No receipt PDF to view.", "View", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            File temp = File.createTempFile(
+                    "Appointment_" + (appt.getAppointmentId() != null ? appt.getAppointmentId() : "receipt") + "_",
+                    ".pdf");
+            temp.deleteOnExit();
+            try (FileOutputStream fos = new FileOutputStream(temp)) {
+                fos.write(pdfBytes);
+            }
+            Desktop.getDesktop().browse(temp.toURI());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Couldn't open the receipt in your browser:\n" + e.getMessage(),
+                    "View Failed", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void downloadPdf() {

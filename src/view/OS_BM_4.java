@@ -37,11 +37,6 @@ public class OS_BM_4 extends javax.swing.JFrame {
         txtTotal.setText(BillingManagementController.formatCurrency(m.getTotalBillAmount()));
     }
 
-    /** "Print Bill" — just re-opens the preview/print/download popup for the current in-progress bill, no navigation. */
-    private void printBill() {
-        new BillPreviewDialog(this, controller.getBillingModel(), false, null).setVisible(true);
-    }
-
     /** Shown right after a successful Save — the popup itself carries the "Bill Generated Successfully!" banner. */
     private void showSuccessDialog() {
         new BillPreviewDialog(this, controller.getBillingModel(), true, () -> {
@@ -76,7 +71,6 @@ public class OS_BM_4 extends javax.swing.JFrame {
         txtMedicine = new javax.swing.JTextField();
         lblTotalCap = new javax.swing.JLabel();
         txtTotal = new javax.swing.JTextField();
-        btnPrintBill = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Sunrise Dental – Billing Management (Step 4)");
@@ -237,19 +231,6 @@ public class OS_BM_4 extends javax.swing.JFrame {
         cardPanel.add(txtTotal);
         txtTotal.setBounds(650, 178, 190, 35);
 
-        btnPrintBill.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnPrintBill.setText("Print Bill");
-        btnPrintBill.setBackground(new java.awt.Color(255, 193, 7));
-        btnPrintBill.setBorderPainted(false);
-        btnPrintBill.setFocusPainted(false);
-        btnPrintBill.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPrintBillActionPerformed(evt);
-            }
-        });
-        cardPanel.add(btnPrintBill);
-        btnPrintBill.setBounds(650, 250, 190, 40);
-
         mainPanel.add(cardPanel);
         cardPanel.setBounds(50, 160, 900, 490);
 
@@ -283,10 +264,6 @@ public class OS_BM_4 extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnSaveActionPerformed
 
-    private void btnPrintBillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintBillActionPerformed
-        printBill();
-    }//GEN-LAST:event_btnPrintBillActionPerformed
-
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -297,7 +274,6 @@ public class OS_BM_4 extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
-    private javax.swing.JButton btnPrintBill;
     private javax.swing.JButton btnSave;
     private javax.swing.JPanel cardPanel;
     private javax.swing.JLabel lblApptChargesCap;

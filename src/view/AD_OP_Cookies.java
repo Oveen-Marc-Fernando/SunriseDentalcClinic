@@ -3,7 +3,6 @@ package view;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import javax.swing.JPanel;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -12,21 +11,30 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 /**
- * Administration &gt; Operations &gt; Inventory — a read-only, live overview
- * of every inventory item on record.
+ * Administration &gt; Operations &gt; Cookies — a read-only audit log of
+ * every "Accept All" click recorded by the Public Dashboard's cookie-consent
+ * banner (see Public_Dashboard#showCookieConsentBanner and
+ * controller.CookieConsentController). Declining isn't logged, only
+ * acceptances — this screen exists to show that the consent banner is
+ * genuinely wired to something, not just cosmetic.
+ *
+ * Reached from the small teal "Cookies" quick-access button every
+ * Operations screen carries (see IconFactory#pillButton), not from
+ * the black Dentists/Patients/Appointments/Inventory/Billings tab row —
+ * this log isn't one of those business-entity grids, so it deliberately
+ * sits outside that row rather than becoming its sixth tab.
  *
  * @author oveen
  */
-public class AD_OP_Inventory extends javax.swing.JFrame {
+public class AD_OP_Cookies extends javax.swing.JFrame {
 
     private static final Font FONT_DEFAULT = new Font("Segoe UI", Font.PLAIN, 13);
     private static final Color COLOR_STRIPE = new Color(240, 240, 240);
-    private static final int PUBLISH_COLUMN = 8;
 
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> sorter;
 
-    public AD_OP_Inventory() {
+    public AD_OP_Cookies() {
         initComponents();
         lblLogo.setIcon(IconFactory.brandLogo(130, 40));
         IconFactory.roundCorners(navBar, 30);
@@ -39,9 +47,10 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }
 
+    /** Same 5-tab row every Operations screen shares — none highlighted here, since Cookies isn't one of these five entity grids. */
     private void installTabBar() {
         TabBarPanel tabs = new TabBarPanel(
-                new String[]{"Dentists", "Patients", "Appointments", "Inventory", "Billings"}, null, 3);
+                new String[]{"Dentists", "Patients", "Appointments", "Inventory", "Billings"}, null, -1);
         tabs.setBounds(330, 155, tabs.getPreferredSize().width, 40);
         mainPanel.add(tabs);
         tabs.setOnTabClick(idx -> {
@@ -58,7 +67,7 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
         mainPanel.setComponentZOrder(tabs, 0);
     }
 
-    /** The teal "Cookies" quick-access button every Operations screen carries — see AD_OP_Cookies. */
+    /** The teal quick-access button itself — see AD_OP_Billings and friends for the matching button added there. */
     private void installCookiesButton() {
         javax.swing.JButton btnCookies = IconFactory.pillButton(
                 "Cookies", new Color(0x3C, 0x78, 0x78), Color.WHITE);
@@ -80,18 +89,6 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
                 c.setBackground(row % 2 == 0 ? Color.WHITE : COLOR_STRIPE);
             }
             return c;
-        }
-    }
-
-    /** Publish Status column — small colored icon-only badge (green check / red cross), no text. */
-    private class PublishIconRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(javax.swing.JTable t, Object v,
-                boolean sel, boolean foc, int row, int col) {
-            JPanel panel = new JPanel(new java.awt.GridBagLayout());
-            panel.setBackground(row % 2 == 0 ? Color.WHITE : COLOR_STRIPE);
-            panel.add(IconFactory.statusDot(Boolean.TRUE.equals(v)));
-            return panel;
         }
     }
 
@@ -132,19 +129,16 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
         tblGrid.getTableHeader().setReorderingAllowed(false);
 
         tblGrid.setDefaultRenderer(Object.class, new AlternatingRowRenderer());
-        tblGrid.getColumnModel().getColumn(PUBLISH_COLUMN).setCellRenderer(new PublishIconRenderer());
 
         txtSearch.getDocument().addDocumentListener(new SearchDocumentListener());
     }
 
-    // Backed by the real "inventory" table (db/schema.sql), via InventoryManagementController.
+    // Backed by the real "cookie_consents" table (db/schema.sql), via CookieConsentController.
     private void populateData() {
         tableModel.setRowCount(0);
-        for (model.InventoryModel m : controller.InventoryManagementController.getAll()) {
+        for (model.CookieConsentModel c : controller.CookieConsentController.getAll()) {
             tableModel.addRow(new Object[]{
-                dash(m.getProductId()), dash(m.getProductType()), dash(m.getProductName()), dash(m.getDescription()),
-                dash(m.getQuantity()), dash(m.getExpireDate()), dash(m.getManufactureDate()),
-                dash(m.getSupplierName()), m.isPublished()
+                dash(c.getDeviceId()), dash(c.getIpAddress()), dash(c.getUserAgent()), dash(c.getFirstSeen())
             });
         }
     }
@@ -170,7 +164,7 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
         tblGrid = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Sunrise Dental — Operations — Dentists");
+        setTitle("Sunrise Dental — Operations — Cookies");
         setResizable(false);
         getContentPane().setLayout(null);
 
@@ -209,7 +203,7 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
         lblSectionTitle.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblSectionTitle.setForeground(new java.awt.Color(231, 115, 36));
         lblSectionTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblSectionTitle.setText("Inventory Details");
+        lblSectionTitle.setText("Cookies");
         mainPanel.add(lblSectionTitle);
         lblSectionTitle.setBounds(330, 215, 300, 36);
 
@@ -239,14 +233,14 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Inventory ID", "Product Type", "Product Name", "Description", "Quantity", "Expiry Date", "Manufacture Date", "Supplier Name", "Publish Status"
+                "Device ID", "IP Address", "User Agent", "First Seen"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -261,15 +255,10 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
         tblGrid.setShowGrid(false);
         scrollPane.setViewportView(tblGrid);
         if (tblGrid.getColumnModel().getColumnCount() > 0) {
-            tblGrid.getColumnModel().getColumn(0).setPreferredWidth(90);
-            tblGrid.getColumnModel().getColumn(1).setPreferredWidth(110);
-            tblGrid.getColumnModel().getColumn(2).setPreferredWidth(130);
-            tblGrid.getColumnModel().getColumn(3).setPreferredWidth(140);
-            tblGrid.getColumnModel().getColumn(4).setPreferredWidth(80);
-            tblGrid.getColumnModel().getColumn(5).setPreferredWidth(100);
-            tblGrid.getColumnModel().getColumn(6).setPreferredWidth(120);
-            tblGrid.getColumnModel().getColumn(7).setPreferredWidth(110);
-            tblGrid.getColumnModel().getColumn(8).setPreferredWidth(90);
+            tblGrid.getColumnModel().getColumn(0).setPreferredWidth(140);
+            tblGrid.getColumnModel().getColumn(1).setPreferredWidth(140);
+            tblGrid.getColumnModel().getColumn(2).setPreferredWidth(420);
+            tblGrid.getColumnModel().getColumn(3).setPreferredWidth(160);
         }
 
         pnlTableWrap.add(scrollPane);
@@ -292,7 +281,7 @@ public class AD_OP_Inventory extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBackActionPerformed
 
     public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(() -> new AD_OP_Inventory().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new AD_OP_Cookies().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

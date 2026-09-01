@@ -33,6 +33,7 @@ public class AD_OP_Dentists extends javax.swing.JFrame {
         lblLogo.setIcon(IconFactory.brandLogo(130, 40));
         IconFactory.roundCorners(navBar, 30);
         installTabBar();
+        installCookiesButton();
         applySearchIcon();
         setupTable();
         populateData();
@@ -57,6 +58,19 @@ public class AD_OP_Dentists extends javax.swing.JFrame {
             }
         });
         mainPanel.setComponentZOrder(tabs, 0);
+    }
+
+    /** The teal "Cookies" quick-access button every Operations screen carries — see AD_OP_Cookies. */
+    private void installCookiesButton() {
+        javax.swing.JButton btnCookies = IconFactory.pillButton(
+                "Cookies", new Color(0x3C, 0x78, 0x78), Color.WHITE);
+        btnCookies.setBounds(780, 113, 140, 36);
+        btnCookies.addActionListener(e -> {
+            dispose();
+            javax.swing.SwingUtilities.invokeLater(() -> new AD_OP_Cookies().setVisible(true));
+        });
+        mainPanel.add(btnCookies);
+        mainPanel.setComponentZOrder(btnCookies, 0);
     }
 
     private class AlternatingRowRenderer extends DefaultTableCellRenderer {

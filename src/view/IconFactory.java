@@ -18,6 +18,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.RoundRectangle2D;
@@ -370,6 +371,32 @@ public final class IconFactory {
         });
     }
 
+    /**
+     * Cookie glyph – an outline circle with a bite notch cut out and a
+     * scatter of filled "chip" dots. Used only by the public dashboard's
+     * cookie-consent banner.
+     */
+    public static Icon cookie(Color color, int size) {
+        return new VectorIcon(size, size, color, (g2, w, h) -> {
+            float cx = w * 0.5f, cy = h * 0.54f, r = w * 0.40f;
+            Area shape = new Area(new Ellipse2D.Float(cx - r, cy - r, r * 2, r * 2));
+            float br = r * 0.55f;
+            float bx = cx + r * 0.60f, by = cy - r * 0.65f;
+            shape.subtract(new Area(new Ellipse2D.Float(bx - br, by - br, br * 2, br * 2)));
+            g2.setStroke(new BasicStroke(Math.max(1.6f, w * 0.09f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(shape);
+
+            float dotR = w * 0.045f;
+            float[][] chips = {
+                {-0.14f, -0.02f}, {0.03f, -0.20f}, {-0.20f, 0.14f},
+                {0.12f, 0.09f}, {-0.02f, 0.26f}, {0.17f, -0.05f},
+            };
+            for (float[] d : chips) {
+                g2.fill(new Ellipse2D.Float(cx + d[0] * w - dotR, cy + d[1] * w - dotR, dotR * 2, dotR * 2));
+            }
+        });
+    }
+
     /** Left-pointing chevron ("‹") – used for "previous" navigation buttons.
      *  Drawn as a vector glyph rather than relying on the Unicode ‹/› characters
      *  in a JButton's text, which can render as "..." depending on the
@@ -612,6 +639,88 @@ public final class IconFactory {
         b.setRolloverEnabled(true);
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         b.setToolTipText(tooltip);
+        return b;
+    }
+
+    /**
+     * A fully-rounded "pill" button (corner radius = half its own height, so
+     * it stays pill-shaped at whatever size it's given) with a flat fill and
+     * hover/press shading — used by the cookie-consent banner's Decline /
+     * Accept All buttons instead of the app's usual square-ish JButtons.
+     */
+    public static JButton pillButton(String text, Color bg, Color fg) {
+        JButton b = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int w = getWidth(), h = getHeight();
+                boolean pressed = getModel().isPressed();
+                boolean hover = getModel().isRollover();
+                Color fill = pressed ? bg.darker() : (hover ? brighten(bg, 14) : bg);
+                g2.setColor(fill);
+                g2.fill(new RoundRectangle2D.Float(0, 0, w - 1, h - 1, h, h));
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setForeground(fg);
+        b.setOpaque(false);
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setRolloverEnabled(true);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return b;
+    }
+
+    /**
+     * Same pill shape as {@link #pillButton}, plus a small red notification
+     * dot in the top-right corner when {@code showBadge} is true — the
+     * "Cookies" quick-access button every Administration &gt; Operations
+     * screen carries (see AD_OP_Cookies), same red-dot convention as
+     * TabBarPanel's own per-tab counts.
+     */
+    public static JButton pillButtonWithBadge(String text, Color bg, Color fg, boolean showBadge) {
+        JButton b = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int w = getWidth(), h = getHeight();
+                boolean pressed = getModel().isPressed();
+                boolean hover = getModel().isRollover();
+                Color fill = pressed ? bg.darker() : (hover ? brighten(bg, 14) : bg);
+                g2.setColor(fill);
+                g2.fill(new RoundRectangle2D.Float(0, 0, w - 1, h - 1, h, h));
+                g2.dispose();
+                super.paintComponent(g);
+                if (showBadge) {
+                    // Fully inside (0,0,w,h) — a JButton clips its own
+                    // paintComponent to its own bounds, so the earlier
+                    // y = -2 (meant to let the dot peek above the pill) was
+                    // actually getting its top sliced off by that clip,
+                    // leaving a cropped, non-circular shape instead of a dot.
+                    Graphics2D dot = (Graphics2D) g.create();
+                    dot.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    dot.setColor(new Color(220, 53, 69));
+                    dot.fillOval(w - 16, 2, 12, 12);
+                    dot.setColor(Color.WHITE);
+                    dot.setStroke(new BasicStroke(1.4f));
+                    dot.drawOval(w - 16, 2, 12, 12);
+                    dot.dispose();
+                }
+            }
+        };
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setForeground(fg);
+        b.setOpaque(false);
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setRolloverEnabled(true);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return b;
     }
 

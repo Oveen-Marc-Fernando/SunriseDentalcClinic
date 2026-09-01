@@ -43,12 +43,6 @@ public class OS_AM_2 extends javax.swing.JFrame {
     private final String address;
     private final String contactNo;
 
-    // Set only once Save has actually persisted an appointment this session —
-    // Email/Print stay blocked until then so a receipt is never sent/printed
-    // for something that was never really saved (the same mistake the
-    // billing screen's old standalone Email button used to make).
-    private model.AppointmentModel savedAppointment;
-
     /** Backward-compatible no-arg entry point (e.g. {@code main()}) — submit is disabled without a patient. */
     public OS_AM_2() {
         this(null, null, null);
@@ -362,7 +356,6 @@ public class OS_AM_2 extends javax.swing.JFrame {
         receipt.setAddress(address);
         receipt.setContactNo(contactNo);
         receipt.setRoomNo(txtRoomNo.getText());
-        savedAppointment = receipt; // unlocks the standalone Email/Print buttons below
 
         new AppointmentPreviewDialog(this, receipt, true, true, () -> {
             dispose();
