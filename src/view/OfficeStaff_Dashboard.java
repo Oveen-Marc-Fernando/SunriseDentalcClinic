@@ -191,7 +191,7 @@ public class OfficeStaff_Dashboard extends javax.swing.JFrame {
         lblHeaderIcon.setBounds(18, 15, 24, 24);
         pnlHeader.add(lblHeaderIcon);
 
-        javax.swing.JLabel lblHeaderTitle = new javax.swing.JLabel("Office Staff — Help Desk Guide");
+        javax.swing.JLabel lblHeaderTitle = new javax.swing.JLabel("Receptionist — Help Desk Guide");
         lblHeaderTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
         lblHeaderTitle.setForeground(Color.WHITE);
         lblHeaderTitle.setBounds(52, 0, 480, 54);
@@ -251,7 +251,7 @@ public class OfficeStaff_Dashboard extends javax.swing.JFrame {
     private String buildHelpDeskHtml() {
         StringBuilder html = new StringBuilder();
         html.append("<html><body style='font-family:Segoe UI, sans-serif; font-size:12px; padding:14px; color:#1e1e1e;'>");
-        html.append("<h2 style='color:#e77324; margin-bottom:4px;'>Office Staff Dashboard &mdash; Quick Guide</h2>");
+        html.append("<h2 style='color:#e77324; margin-bottom:4px;'>Receptionist Dashboard &mdash; Quick Guide</h2>");
         html.append("<p style='color:#555;'>Answers to common questions about each section of your dashboard.</p><hr>");
 
         html.append(qa("What does \"Dentist Management\" do?",
@@ -333,7 +333,7 @@ public class OfficeStaff_Dashboard extends javax.swing.JFrame {
         lblHeaderIcon.setBounds(18, 15, 24, 24);
         pnlHeader.add(lblHeaderIcon);
 
-        javax.swing.JLabel lblHeaderTitle = new javax.swing.JLabel("Office Staff — Dashboard Analysis");
+        javax.swing.JLabel lblHeaderTitle = new javax.swing.JLabel("Receptionist — Dashboard Analysis");
         lblHeaderTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
         lblHeaderTitle.setForeground(Color.WHITE);
         lblHeaderTitle.setBounds(52, 0, 480, 54);
@@ -427,7 +427,7 @@ public class OfficeStaff_Dashboard extends javax.swing.JFrame {
         lblApprovals = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Sunrise Dental - Office Staff");
+        setTitle("Sunrise Dental - Receptionist");
         setResizable(false);
         getContentPane().setLayout(null);
 
@@ -484,7 +484,7 @@ public class OfficeStaff_Dashboard extends javax.swing.JFrame {
         pnlAnalysis.setBounds(740, 95, 110, 90);
 
         lblWelcome.setFont(new java.awt.Font("Segoe UI", 3, 28)); // NOI18N
-        lblWelcome.setText("Hii Office Staff, Welcome!!");
+        lblWelcome.setText("Hii Receptionist, Welcome!!");
         mainPanel.add(lblWelcome);
         lblWelcome.setBounds(50, 120, 600, 40);
 
