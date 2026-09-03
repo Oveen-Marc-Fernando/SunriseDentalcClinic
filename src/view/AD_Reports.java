@@ -1,12 +1,12 @@
 package view;
 
 /**
- * Administration &gt; Reports — the report categories browser and
- * download/view picker. View opens a real generated PDF (A4, the clinic's
- * fixed report format — see {@link util.ReportPdfGenerator}) in the
- * system's default PDF viewer; Download saves that same PDF wherever the
- * user picks. Category only narrows which reports show in the Report
- * dropdown — the actual generation is keyed off Time + Report, via
+ * Administration &gt; Reports — the report categories browser and generator.
+ * Generate builds the currently-picked report (A4, the clinic's fixed report
+ * format — see {@link util.ReportPdfGenerator}) and opens it in
+ * {@link ReportPreviewDialog}, which is where View/Download/Print actually
+ * happen. Category only narrows which reports show in the Report dropdown —
+ * the actual generation is keyed off Time + Report, via
  * {@link controller.ReportController}.
  *
  * @author oveen
@@ -84,7 +84,6 @@ public class AD_Reports extends javax.swing.JFrame {
         lblReportFilter = new javax.swing.JLabel();
         cmbReportFilter = new javax.swing.JComboBox();
         btnView = new javax.swing.JButton();
-        btnDownload = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
         btnBack = new javax.swing.JButton();
 
@@ -191,10 +190,10 @@ public class AD_Reports extends javax.swing.JFrame {
         pnlDownload.add(cmbReportFilter);
         cmbReportFilter.setBounds(120, 170, 230, 32);
 
-        btnView.setBackground(new java.awt.Color(255, 193, 7));
+        btnView.setBackground(new java.awt.Color(0, 204, 51));
         btnView.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnView.setForeground(new java.awt.Color(30, 30, 30));
-        btnView.setText("View");
+        btnView.setText("Generate");
         btnView.setBorderPainted(false);
         btnView.setFocusPainted(false);
         btnView.addActionListener(new java.awt.event.ActionListener() {
@@ -203,21 +202,7 @@ public class AD_Reports extends javax.swing.JFrame {
             }
         });
         pnlDownload.add(btnView);
-        btnView.setBounds(240, 240, 110, 38);
-
-        btnDownload.setBackground(new java.awt.Color(0, 168, 84));
-        btnDownload.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
-        btnDownload.setForeground(new java.awt.Color(255, 255, 255));
-        btnDownload.setText("Download");
-        btnDownload.setBorderPainted(false);
-        btnDownload.setFocusPainted(false);
-        btnDownload.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDownloadActionPerformed(evt);
-            }
-        });
-        pnlDownload.add(btnDownload);
-        btnDownload.setBounds(30, 240, 110, 38);
+        btnView.setBounds(200, 240, 140, 38);
 
         btnClear.setBackground(new java.awt.Color(220, 53, 69));
         btnClear.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
@@ -231,7 +216,7 @@ public class AD_Reports extends javax.swing.JFrame {
             }
         });
         pnlDownload.add(btnClear);
-        btnClear.setBounds(150, 240, 80, 38);
+        btnClear.setBounds(70, 240, 110, 38);
 
         cardPanel.add(pnlDownload);
         pnlDownload.setBounds(500, 55, 380, 320);
@@ -276,29 +261,6 @@ public class AD_Reports extends javax.swing.JFrame {
         });
     }//GEN-LAST:event_btnViewActionPerformed
 
-    private void btnDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDownloadActionPerformed
-        generateThen(pdf -> {
-            String suggested = controller.ReportController.suggestedFileName(
-                    String.valueOf(cmbTimeFilter.getSelectedItem()), String.valueOf(cmbReportFilter.getSelectedItem()));
-            javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
-            chooser.setSelectedFile(new java.io.File(suggested));
-            chooser.setDialogTitle("Save Report");
-            if (chooser.showSaveDialog(this) != javax.swing.JFileChooser.APPROVE_OPTION) {
-                return;
-            }
-            java.io.File target = chooser.getSelectedFile();
-            if (!target.getName().toLowerCase().endsWith(".pdf")) {
-                target = new java.io.File(target.getParentFile(), target.getName() + ".pdf");
-            }
-            try (java.io.FileOutputStream out = new java.io.FileOutputStream(target)) {
-                out.write(pdf);
-                IconFactory.showSuccessDialog(this, "Report saved to " + target.getAbsolutePath(), null);
-            } catch (java.io.IOException e) {
-                IconFactory.showErrorDialog(this, "Couldn't save the report — " + e.getMessage(), null);
-            }
-        });
-    }//GEN-LAST:event_btnDownloadActionPerformed
-
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
         cmbTimeFilter.setSelectedIndex(0);
         cmbCategoryFilter.setSelectedIndex(0);
@@ -312,7 +274,6 @@ public class AD_Reports extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnClear;
-    private javax.swing.JButton btnDownload;
     private javax.swing.JButton btnView;
     private javax.swing.JPanel cardPanel;
     private javax.swing.JComboBox cmbCategoryFilter;
