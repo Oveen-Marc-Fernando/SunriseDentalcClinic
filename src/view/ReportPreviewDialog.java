@@ -4,13 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
-import java.awt.print.PrinterJob;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,14 +29,13 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.printing.PDFPageable;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 /**
  * Administration &gt; Reports' "View" popup — same convention as
  * {@link BillPreviewDialog}: renders the already-generated report PDF to an
  * image (via PDFBox's {@link PDFRenderer}) inside a scrollable read-only
- * popup with Download/Print/Close actions, instead of shelling out to
+ * popup with Download/View/Close actions, instead of shelling out to
  * whatever PDF viewer happens to be installed. Every page is rendered and
  * stacked (not just page 1), since a report can genuinely run long.
  *
@@ -126,9 +125,10 @@ public class ReportPreviewDialog extends JDialog {
         btnDownload.addActionListener(e -> downloadPdf());
         bar.add(btnDownload);
 
-        JButton btnPrint = styledButton("Print", new Color(255, 152, 0));
-        btnPrint.addActionListener(e -> printPdf());
-        bar.add(btnPrint);
+        JButton btnView = styledButton("View", new Color(255, 193, 7));
+        btnView.setForeground(new Color(30, 30, 30)); // dark text — white-on-yellow reads poorly
+        btnView.addActionListener(e -> viewInBrowser());
+        bar.add(btnView);
 
         JButton btnClose = styledButton("Close", new Color(100, 100, 100));
         btnClose.addActionListener(e -> dispose());
@@ -172,19 +172,27 @@ public class ReportPreviewDialog extends JDialog {
         }
     }
 
-    private void printPdf() {
+    /**
+     * Opens the generated report PDF in the system's default browser — same
+     * convention as {@link AppointmentPreviewDialog}/{@link BillPreviewDialog}'s
+     * own View button. Written to a delete-on-exit temp file first, since
+     * {@link Desktop#browse} needs a real file on disk to hand to the browser.
+     */
+    private void viewInBrowser() {
         if (pdfBytes == null) {
-            JOptionPane.showMessageDialog(this, "No report PDF to print.", "Print", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "No report PDF to view.", "View", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try (PDDocument doc = PDDocument.load(new ByteArrayInputStream(pdfBytes))) {
-            PrinterJob job = PrinterJob.getPrinterJob();
-            job.setPageable(new PDFPageable(doc));
-            if (job.printDialog()) {
-                job.print();
+        try {
+            File temp = File.createTempFile("Report_", ".pdf");
+            temp.deleteOnExit();
+            try (FileOutputStream fos = new FileOutputStream(temp)) {
+                fos.write(pdfBytes);
             }
+            Desktop.getDesktop().browse(temp.toURI());
         } catch (Exception e) {
-            IconFactory.showErrorDialog(this, "Couldn't print the report — " + e.getMessage(), null);
+            JOptionPane.showMessageDialog(this, "Couldn't open the report in your browser:\n" + e.getMessage(),
+                    "View Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
