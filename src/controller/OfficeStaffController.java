@@ -22,7 +22,7 @@ public class OfficeStaffController {
     // ── Dashboard data ────────────────────────────────────────────────────────
 
     public String getWelcomeMessage() {
-        return "Hii Office Staff, Welcome!!";
+        return "Hii Receptionist, Welcome!!";
     }
 
     public String getDisplayName() {
